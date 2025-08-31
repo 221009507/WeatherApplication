@@ -1,0 +1,183 @@
+/* ---------------- General ---------------- */
+.profile-page {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+.profile-page h1 {
+  text-align: center;
+  color: #0A61C9;
+  margin-bottom: 40px;
+  font-weight: 600;
+}
+
+/* ---------------- Container ---------------- */
+.profile-container {
+  display: flex;
+  gap: 40px;
+  background-color: #fff;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 12px 25px rgba(0,0,0,0.08);
+  flex-wrap: wrap;
+}
+
+/* ---------------- Avatar Section ---------------- */
+.profile-avatar-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  min-width: 200px;
+}
+
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+
+.user-name {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #0A61C9;
+}
+
+.user-email {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 12px;
+}
+
+.profile-avatar-section button {
+  padding: 10px 16px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: none;
+  color: #fff;
+  background-color: #0A61C9;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.profile-avatar-section button:hover {
+  background-color: #064089;
+}
+
+/* ---------------- Details Section ---------------- */
+.profile-details-section {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ---------------- Profile Items ---------------- */
+.profile-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background-color: #f5f9ff;
+  border-radius: 12px;
+  font-size: 1rem;
+  color: #1B1B1B;
+}
+
+.profile-label {
+  font-weight: 500;
+  color: #064089;
+}
+
+/* ---------------- Form Items ---------------- */
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-item {
+  display: flex;
+  flex-direction: column;
+  font-weight: 500;
+  color: #064089;
+  gap: 6px;
+}
+
+.form-item input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #B0C4DE;
+  font-size: 1rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-item input:focus {
+  outline: none;
+  border-color: #0A61C9;
+  box-shadow: 0 0 6px rgba(10,97,201,0.3);
+}
+
+/* ---------------- Buttons ---------------- */
+.profile-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+button.primary {
+  background-color: #0A61C9;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button.primary:hover {
+  background-color: #064089;
+}
+
+button.danger {
+  background-color: #FF6B6B;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button.danger:hover {
+  background-color: #E63946;
+}
+
+/* ---------------- Responsive ---------------- */
+@media (max-width: 768px) {
+  .profile-container {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .profile-avatar-section {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 20px;
+  }
+
+  .profile-avatar {
+    width: 100px;
+    height: 100px;
+  }
+
+  .profile-details-section {
+    flex: 1;
+  }
+}

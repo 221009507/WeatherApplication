@@ -1,0 +1,90 @@
+/* Container and overlay */
+.home-container {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  font-family: 'Roboto', sans-serif;
+}
+
+.home-overlay {
+  background-color: rgba(10, 97, 201, 0.75); /* Primary blue with transparency */
+  color: #ffffff;
+  text-align: center;
+  padding: 40px 60px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  max-width: 500px;
+}
+
+/* Typography */
+.home-overlay h1 {
+  font-size: 2.5rem;
+  margin-bottom: 16px;
+  font-weight: 700;
+}
+
+.home-overlay p {
+  font-size: 1.2rem;
+  margin-bottom: 32px;
+}
+
+/* Buttons */
+.home-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.primary-btn {
+  background-color: #0A61C9; /* Primary Blue */
+  color: #ffffff;
+  padding: 12px 28px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.primary-btn:hover {
+  background-color: #064089; /* Darker Blue on hover */
+}
+
+.secondary-btn {
+  background-color: #ffffff;
+  color: #0A61C9;
+  padding: 12px 28px;
+  border: 2px solid #0A61C9;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.secondary-btn:hover {
+  background-color: #0A61C9;
+  color: #ffffff;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .home-overlay {
+    padding: 30px 20px;
+  }
+
+  .home-overlay h1 {
+    font-size: 2rem;
+  }
+
+  .home-overlay p {
+    font-size: 1rem;
+  }
+
+  .home-buttons {
+    flex-direction: column;
+    gap: 12px;
+  }
+}

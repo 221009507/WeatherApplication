@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import bgImage from "../images/weatherImg.png"; // local background image
+import "../styles/HomePage.css"; // import CSS file for styling
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -13,8 +14,12 @@ export default function HomePage() {
         <h1>Welcome to Weather App 🌤️</h1>
         <p>Check the weather in your city quickly and easily.</p>
         <div className="home-buttons">
-          <button onClick={() => navigate("/login")}>Login</button>
-          <button onClick={() => navigate("/register")}>Register</button>
+          <button className="primary-btn" onClick={() => navigate("/login")}>
+            Login
+          </button>
+          <button className="secondary-btn" onClick={() => navigate("/register")}>
+            Register
+          </button>
         </div>
       </div>
     </div>

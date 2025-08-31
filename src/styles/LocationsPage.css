@@ -1,0 +1,120 @@
+/* General */
+body {
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #E6F0FA; /* Light Blue background */
+}
+
+.locations-dashboard {
+  padding: 20px 40px;
+  max-width: 1000px;
+  margin: auto;
+}
+
+.locations-dashboard h1 {
+  color: #0A61C9;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.locations-dashboard h2 {
+  color: #064089;
+  margin-top: 24px;
+  margin-bottom: 16px;
+}
+
+/* Input Section */
+.location-input {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.location-input input {
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid #B0C4DE;
+  width: 250px;
+  font-size: 1rem;
+}
+
+.location-input input:focus {
+  outline: none;
+  border-color: #0A61C9;
+  box-shadow: 0 0 6px rgba(10, 97, 201, 0.3);
+}
+
+.location-input button {
+  background-color: #0A61C9;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.location-input button:hover {
+  background-color: #064089;
+}
+
+/* Locations Grid */
+.locations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.location-card {
+  background-color: #FFFFFF;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+}
+
+.location-card .location-info p {
+  margin: 6px 0;
+}
+
+.location-card button {
+  margin-top: 12px;
+  background-color: #FF6B6B;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.location-card button:hover {
+  background-color: #E63946;
+}
+
+/* History List */
+.history-list {
+  list-style-type: disc;
+  margin-left: 20px;
+  padding-bottom: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .location-input input {
+    width: 80%;
+  }
+
+  .locations-grid {
+    grid-template-columns: 1fr;
+  }
+}

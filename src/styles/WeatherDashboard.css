@@ -1,0 +1,154 @@
+/* General */
+body {
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #E6F0FA;
+}
+
+.dashboard-page {
+  padding: 20px 40px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.dashboard-page h1 {
+  color: #0A61C9;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+/* Search Bar */
+.search-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.search-bar input {
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid #B0C4DE;
+  width: 280px;
+  font-size: 1rem;
+}
+
+.search-bar input:focus {
+  outline: none;
+  border-color: #0A61C9;
+  box-shadow: 0 0 6px rgba(10, 97, 201, 0.3);
+}
+
+.search-bar button {
+  background-color: #0A61C9;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  width: 150px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.search-bar button:hover {
+  background-color: #064089;
+}
+
+/* Weather Card & Forecast */
+.weather-card, .forecast-card, .air-quality-card, .accuracy-card {
+  background-color: #FFFFFF;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.forecast-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.forecast-card p {
+  margin: 4px 0;
+}
+
+.air-quality-card p, .accuracy-card p {
+  margin: 6px 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .search-bar input {
+    width: 80%;
+  }
+
+  .forecast-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Favorites Section */
+.favorites-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.favorite-card {
+  background-color: #FFFFFF;
+  border-radius: 12px;
+  padding: 10px 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 120px;
+}
+
+.favorite-card button {
+  background-color: #FF6B6B;
+  color: #fff;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background-color 0.3s ease;
+}
+
+.favorite-card button:hover {
+  background-color: #E63946;
+}
+
+.fav-name {
+  cursor: pointer;
+  font-weight: 500;
+  color: #0A61C9;
+}
+
+.fav-name:hover {
+  text-decoration: underline;
+}
+
+/* Add Favorite Button on Weather Header */
+button.warning, .add-fav-btn {
+  background-color: #0A61C9;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+button.warning:hover, .add-fav-btn:hover {
+  background-color: #064089;
+}

@@ -1,0 +1,76 @@
+/* ---------------- General ---------------- */
+.alerts-page {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px 40px;
+}
+
+.alerts-page h1 {
+  color: #0A61C9;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+/* ---------------- Alerts Container ---------------- */
+.alerts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ---------------- Alert Card ---------------- */
+.alert-card {
+  background-color: #FFFFFF;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform 0.2s ease;
+}
+
+.alert-card:hover {
+  transform: translateY(-4px);
+}
+
+/* Left border for severity color */
+.alert-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 5px;
+  border-radius: 16px 0 0 16px;
+}
+
+/* Severity Badge */
+.severity {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 500;
+  font-size: 0.85rem;
+  align-self: flex-start;
+}
+
+/* Alert text */
+.alert-card h3 {
+  margin: 0;
+  color: #064089;
+}
+
+.alert-card p {
+  margin: 0;
+  color: #1B1B1B;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .alerts-page {
+    padding: 20px;
+  }
+}
