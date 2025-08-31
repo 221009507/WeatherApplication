@@ -13,6 +13,56 @@
   font-weight: 600;
 }
 
+/* ---------------- Venue Form ---------------- */
+.venue-form {
+  background-color: #FFFFFF;
+  border-radius: 16px;
+  padding: 25px 30px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  margin-bottom: 40px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.venue-form h2 {
+  color: #0A61C9;
+  margin-bottom: 16px;
+  font-size: 1.3rem;
+}
+
+.venue-form input {
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.venue-form input:focus {
+  border-color: #0A61C9;
+  outline: none;
+}
+
+.venue-form button {
+  background-color: #0A61C9;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  margin-top: 5px;
+}
+
+.venue-form button:hover {
+  background-color: #064089;
+}
+
 /* ---------------- Venues Grid ---------------- */
 .venues-grid {
   display: grid;
@@ -90,6 +140,10 @@
   }
 
   .venue-details {
+    padding: 20px;
+  }
+
+  .venue-form {
     padding: 20px;
   }
 }

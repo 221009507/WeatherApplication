@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
 import "../styles/LoginPage.css"; // import CSS for styling
 
@@ -56,6 +56,9 @@ export default function LoginPage() {
           />
           <button type="submit" className="primary-btn">Login</button>
         </form>
+        <p className="register-link">
+          Don't have an account? <Link to="/register">Register</Link>
+        </p>
       </div>
     </div>
   );
