@@ -1,17 +1,32 @@
 import { useState, useEffect } from "react";
 import "../styles/AlertsPage.css";
 
+const API_BASE_URL = "http://localhost:8080/api";
+
 export default function AlertsPage() {
   const [alerts, setAlerts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   // Mock data for now
   useEffect(() => {
-    setAlerts([
-      { id: 1, type: "Storm", message: "Heavy rain expected tomorrow.", severity: "High" },
-      { id: 2, type: "Heatwave", message: "Temperatures above 38°C this week.", severity: "Medium" },
-      { id: 3, type: "Wind", message: "Strong winds up to 60 km/h.", severity: "Low" },
-    ]);
+    fetchAlerts();
   }, []);
+
+  const fetchAlerts = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/alerts`);
+      if (!res.ok) throw new Error("Failed to fetch alerts");
+
+      const alertsData = await res.json();
+      setAlerts(alertsData);
+    } catch (err) {
+      setError("Error loading alerts: " + err.message);
+      console.error("Error fetching alerts:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getSeverityColor = (severity) => {
     switch (severity.toLowerCase()) {
@@ -22,6 +37,9 @@ export default function AlertsPage() {
     }
   };
 
+  if (loading) return <div className="alerts-page">Loading alerts...</div>;
+  if (error) return <div className="alerts-page error">{error}</div>;
+
   return (
     <div className="alerts-page">
       <h1>Weather Alerts ⚠️</h1>
@@ -31,7 +49,7 @@ export default function AlertsPage() {
         ) : (
           alerts.map(alert => (
             <div key={alert.id} className="alert-card" style={{ borderLeft: `5px solid ${getSeverityColor(alert.severity)}` }}>
-              <h3>{alert.type}</h3>
+              <h3>{alert.type} - {alert.city}</h3>
               <p>{alert.message}</p>
               <span className="severity" style={{ backgroundColor: getSeverityColor(alert.severity) }}>
                 {alert.severity}
