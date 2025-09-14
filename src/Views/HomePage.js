@@ -13,11 +13,20 @@ export default function HomePage() {
       <div className="home-overlay">
         <h1>Welcome to Weather App 🌤️</h1>
         <p>Check the weather in your city quickly and easily.</p>
+
+        {/* Buttons for navigation */}
         <div className="home-buttons">
-          <button className="primary-btn" onClick={() => navigate("/login")}>
+          <button
+            className="primary-btn"
+            onClick={() => navigate("/login")}
+          >
             Login
           </button>
-          <button className="secondary-btn" onClick={() => navigate("/register")}>
+
+          <button
+            className="secondary-btn"
+            onClick={() => navigate("/register")}
+          >
             Register
           </button>
         </div>

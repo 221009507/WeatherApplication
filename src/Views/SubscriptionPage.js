@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 import "../styles/SubscriptionPage.css";
 
 export default function SubscriptionPage() {
   const [subscriptionTypes, setSubscriptionTypes] = useState([]);
   const [userSubscriptions, setUserSubscriptions] = useState([]);
+  const userEmail = "testuser@example.com"; // TODO: replace with logged-in user’s email
 
-  // Load mock data
+  // Load available plans (mock for now, can later fetch from backend if you store them there)
   useEffect(() => {
     const types = [
       { id: "1", name: "Basic", price: 50, duration: "1 Month", features: ["Standard Forecast"] },
@@ -14,30 +16,36 @@ export default function SubscriptionPage() {
     ];
     setSubscriptionTypes(types);
 
-    const userSubs = [
-      { id: "101", subscriptionType: types[0], startDate: "2025-08-01", endDate: "2025-08-31", active: true },
-      { id: "102", subscriptionType: types[2], startDate: "2025-01-01", endDate: "2025-12-31", active: false },
-    ];
-    setUserSubscriptions(userSubs);
-  }, []);
+    // Fetch user’s subscriptions from backend
+    axios
+      .get(`http://localhost:8080/api/user-subscriptions/${userEmail}`)
+      .then((res) => setUserSubscriptions(res.data))
+      .catch((err) => console.error(err));
+  }, [userEmail]);
 
+  // Subscribe user
   const subscribe = (type) => {
-    if (!userSubscriptions.find(sub => sub.subscriptionType.id === type.id)) {
-      const newSub = {
-        id: Date.now().toString(),
-        subscriptionType: type,
-        startDate: new Date().toISOString().split("T")[0],
-        endDate: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split("T")[0],
-        active: true
-      };
-      setUserSubscriptions(prev => [...prev, newSub]);
-    }
+    axios
+      .post("http://localhost:8080/api/user-subscriptions", {
+        email: userEmail,
+        name: type.name,
+        price: type.price,
+        duration: type.duration,
+      })
+      .then((res) => setUserSubscriptions((prev) => [...prev, res.data]))
+      .catch((err) => console.error(err));
   };
 
+  // Unsubscribe user
   const unsubscribe = (id) => {
-    setUserSubscriptions(prev =>
-      prev.map(sub => sub.id === id ? { ...sub, active: false } : sub)
-    );
+    axios
+      .put(`http://localhost:8080/api/user-subscriptions/unsubscribe/${id}`)
+      .then((res) =>
+        setUserSubscriptions((prev) =>
+          prev.map((sub) => (sub.id === id ? res.data : sub))
+        )
+      )
+      .catch((err) => console.error(err));
   };
 
   return (
@@ -47,7 +55,7 @@ export default function SubscriptionPage() {
       <section className="available-subscriptions">
         <h2>Available Plans</h2>
         <div className="subscription-grid">
-          {subscriptionTypes.map(type => (
+          {subscriptionTypes.map((type) => (
             <div key={type.id} className="subscription-card">
               <h3>{type.name}</h3>
               <p>💰 Price: R{type.price}</p>
@@ -63,16 +71,26 @@ export default function SubscriptionPage() {
         <h2>My Subscriptions</h2>
         {userSubscriptions.length === 0 && <p>No subscriptions yet.</p>}
         <div className="subscription-grid">
-          {userSubscriptions.map(sub => (
-            <div key={sub.id} className={`subscription-card ${sub.active ? "active" : "inactive"}`}>
+          {userSubscriptions.map((sub) => (
+            <div
+              key={sub.id}
+              className={`subscription-card ${sub.active ? "active" : "inactive"}`}
+            >
               {sub.active && <span className="active-badge">Active</span>}
-              <h3>{sub.subscriptionType.name}</h3>
-              <p>💰 Price: R{sub.subscriptionType.price}</p>
-              <p>⏱ Duration: {sub.subscriptionType.duration}</p>
+              <h3>{sub.name}</h3>
+              <p>💰 Price: R{sub.price}</p>
+              <p>⏱ Duration: {sub.duration}</p>
               <p>Start: {sub.startDate}</p>
               <p>End: {sub.endDate}</p>
               <p>Status: {sub.active ? "Active ✅" : "Inactive ❌"}</p>
-              {sub.active && <button className="unsubscribe-btn" onClick={() => unsubscribe(sub.id)}>Unsubscribe</button>}
+              {sub.active && (
+                <button
+                  className="unsubscribe-btn"
+                  onClick={() => unsubscribe(sub.id)}
+                >
+                  Unsubscribe
+                </button>
+              )}
             </div>
           ))}
         </div>

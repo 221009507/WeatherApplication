@@ -1,68 +1,107 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import "../styles/UserProfile.css";
-import avatarImg from "../images/user.png"; // Add a default avatar image
+import avatarImg from "../images/user.png";
 
-export default function UserProfile() {
-  const [user, setUser] = useState({
-    fullName: "John Doe",
-    email: "john.doe@example.com",
-    phone: "+27 123 456 789",
-    city: "Johannesburg",
-    country: "South Africa",
+export default function UserProfile({ userEmail }) {
+  const [user, setUser] = useState(null);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "",
+    gender: "",
+    password: ""
   });
-
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({ ...user });
+  const [loading, setLoading] = useState(!!userEmail);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (!userEmail) {
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
+    setLoading(true);
+    axios
+      .get(`http://localhost:8080/api/profiles/email/${userEmail}`)
+      .then(res => {
+        setUser(res.data);
+        setFormData(res.data);
+      })
+      .catch(err => {
+        console.error("Profile fetch error:", err);
+        setError("No profile found. You can create one below.");
+        setUser(null);
+      })
+      .finally(() => setLoading(false));
+  }, [userEmail]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSave = (e) => {
     e.preventDefault();
-    setUser(formData);
-    setIsEditing(false);
+    if (!formData.email) {
+      alert("Email is required!");
+      return;
+    }
+
+    axios
+      .post("http://localhost:8080/api/profiles/create", formData)
+      .then(res => {
+        setUser(res.data);
+        setIsEditing(false);
+        alert("Profile saved ✅");
+      })
+      .catch(err => {
+        console.error("Save error:", err);
+        alert("Error saving profile ❌");
+      });
   };
 
   const handleCancel = () => {
-    setFormData(user);
+    setFormData(user || { firstName: "", lastName: "", email: "", phoneNumber: "", gender: "" });
     setIsEditing(false);
   };
+
+  if (loading) return <p>Loading profile...</p>;
+  if (error && !user) return <p style={{ color: "orange" }}>{error}</p>;
 
   return (
     <div className="profile-page">
       <h1>User Profile</h1>
       <div className="profile-container">
-        {/* Left section: avatar */}
         <div className="profile-avatar-section">
           <img src={avatarImg} alt="Profile Avatar" className="profile-avatar" />
-          <p className="user-name">{user.fullName}</p>
-          <p className="user-email">{user.email}</p>
+          <p className="user-name">{formData.firstName} {formData.lastName}</p>
+          <p className="user-email">{formData.email}</p>
           {!isEditing && (
             <button className="primary" onClick={() => setIsEditing(true)}>
-              Edit Profile
+              {user ? "Edit Profile" : "Create Profile"}
             </button>
           )}
         </div>
 
-        {/* Right section: profile details / edit form */}
         <div className="profile-details-section">
           {!isEditing ? (
             <div className="profile-details">
-              <ProfileItem label="Phone" value={user.phone} />
-              <ProfileItem label="City" value={user.city} />
-              <ProfileItem label="Country" value={user.country} />
+              <ProfileItem label="Gender" value={formData.gender || "-"} />
+              <ProfileItem label="Phone" value={formData.phoneNumber || "-"} />
             </div>
           ) : (
             <form className="profile-form" onSubmit={handleSave}>
-              <FormItem label="Full Name" name="fullName" value={formData.fullName} onChange={handleChange} />
-              <FormItem label="Email" name="email" value={formData.email} onChange={handleChange} type="email" />
-              <FormItem label="Phone" name="phone" value={formData.phone} onChange={handleChange} />
-              <FormItem label="City" name="city" value={formData.city} onChange={handleChange} />
-              <FormItem label="Country" name="country" value={formData.country} onChange={handleChange} />
+              <FormItem label="First Name" name="firstName" value={formData.firstName} onChange={handleChange} />
+              <FormItem label="Last Name" name="lastName" value={formData.lastName} onChange={handleChange} />
+              <FormItem label="Email" name="email" value={formData.email} onChange={handleChange} type="email" disabled={!!userEmail} />
+              <FormItem label="Phone" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} />
+              <FormItem label="Gender" name="gender" value={formData.gender} onChange={handleChange} />
               <div className="profile-buttons">
-                <button type="submit" className="primary">Save</button>
+                <button type="submit" className="primary">{user ? "Save" : "Create"}</button>
                 <button type="button" className="danger" onClick={handleCancel}>Cancel</button>
               </div>
             </form>
@@ -73,7 +112,6 @@ export default function UserProfile() {
   );
 }
 
-/* Subcomponents */
 function ProfileItem({ label, value }) {
   return (
     <div className="profile-item">

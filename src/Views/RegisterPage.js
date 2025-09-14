@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "../styles/RegisterPage.css"; // import CSS for styling
+import "../styles/RegisterPage.css";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -12,25 +12,45 @@ export default function RegisterPage() {
     gender: "",
     email: "",
     phoneNumber: "",
-    password: ""
+    password: "",
+    adminCode: "" // optional admin secret
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const payload = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      gender: formData.gender,
+      email: formData.email,
+      phoneNumber: formData.phoneNumber,
+      password: formData.password,
+      adminCode: formData.adminCode // optional
+    };
+
     try {
       const response = await axios.post(
         "http://localhost:8080/api/users/register",
-        formData
+        payload,
+        { headers: { "Content-Type": "application/json" } }
       );
-      console.log("Registered User:", response.data);
-      alert("Registered Successfully!");
-      navigate("/dashboard");
+
+      console.log("User registered:", response.data);
+      alert("Registered successfully!");
+
+      // Redirect after registration
+      if (formData.adminCode === "SECRET123") {
+        navigate("/admin-dashboard");
+      } else {
+        navigate("/dashboard");
+      }
+
     } catch (error) {
       console.error("Registration failed:", error);
       alert("Registration failed! Check console for details.");
@@ -53,6 +73,7 @@ export default function RegisterPage() {
           <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required />
           <input type="text" name="phoneNumber" placeholder="Phone Number" value={formData.phoneNumber} onChange={handleChange} required />
           <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} required />
+          <input type="text" name="adminCode" placeholder="Admin Secret (optional)" value={formData.adminCode} onChange={handleChange} />
           <button type="submit" className="primary-btn">Register</button>
         </form>
       </div>

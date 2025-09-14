@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "./Views/HomePage";
 import LoginPage from "./Views/LoginPage";
 import RegisterPage from "./Views/RegisterPage";
@@ -14,42 +14,26 @@ import SubscriptionPage from "./Views/SubscriptionPage";
 import ReportsPage from "./Views/ReportsPage";
 import ForecastPage from "./Views/ForecastPage";
 
+import AdminDashboardPage from "./Views/AdminDashBoard"; // import admin page
+
 function App() {
   return (
     <Router>
-      <div>
-        {/* Navigation bar */}
-        <nav className="navbar flex gap-4 p-4 bg-gray-800 text-white">
-          <Link to="/">Home</Link>
-          <Link to="/login">Login</Link>
-          <Link to="/register">Register</Link>
-          <Link to="/dashboard">Dashboard</Link>
-          <Link to="/locations">Locations</Link>
-          <Link to="/alerts">Alerts</Link>
-          <Link to="/profile">Profile</Link>
-          <Link to="/events">Events</Link>
-          <Link to="/venues">Venues</Link>
-          <Link to="/subscriptions">Subscriptions</Link>
-          <Link to="/reports">Reports</Link>
-          <Link to="/forecast">Forecast</Link>
-        </nav>
-
-        {/* Routes */}
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/dashboard" element={<WeatherDashboard />} />
-          <Route path="/locations" element={<LocationsPage />} />
-          <Route path="/alerts" element={<AlertsPage />} />
-          <Route path="/profile" element={<UserProfile />} />
-          <Route path="/events" element={<EventPage />} />
-          <Route path="/venues" element={<VenuePage />} />
-          <Route path="/subscriptions" element={<SubscriptionPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
-          <Route path="/forecast" element={<ForecastPage />} />
-        </Routes>
-      </div>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/dashboard" element={<WeatherDashboard />} />
+        <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
+        <Route path="/locations" element={<LocationsPage />} />
+        <Route path="/alerts" element={<AlertsPage />} />
+        <Route path="/profile" element={<UserProfile />} />
+        <Route path="/events" element={<EventPage />} />
+        <Route path="/venues" element={<VenuePage />} />
+        <Route path="/subscriptions" element={<SubscriptionPage />} />
+        <Route path="/reports" element={<ReportsPage />} />
+        <Route path="/forecast" element={<ForecastPage />} />
+      </Routes>
     </Router>
   );
 }
