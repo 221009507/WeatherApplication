@@ -7,6 +7,7 @@ export default function AdminDashboardPage() {
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   // Fetch all users from backend
   useEffect(() => {
@@ -16,24 +17,24 @@ export default function AdminDashboardPage() {
         setUsers(response.data);
       } catch (error) {
         console.error("Failed to fetch users:", error);
-        alert("Failed to fetch users. Redirecting to login.");
-        navigate("/login");
+        setError("Failed to fetch users. Please try again later.");
       } finally {
         setLoading(false);
       }
     };
 
     fetchUsers();
-  }, [navigate]);
+  }, []);
 
-  // Handle delete user with detailed error handling
+  // Handle delete user
   const handleDelete = async (userId) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
 
     try {
-      const response = await axios.delete(`http://localhost:8080/api/users/${userId}`, {
-        timeout: 5000,
-      });
+      const response = await axios.delete(
+        `http://localhost:8080/api/users/${userId}`,
+        { timeout: 5000 }
+      );
 
       if (response.status === 204) {
         setUsers(users.filter((user) => user.userId !== userId));
@@ -41,16 +42,12 @@ export default function AdminDashboardPage() {
       } else {
         alert(`Unexpected response: ${response.status}`);
       }
-
     } catch (error) {
       if (error.response) {
-        console.error("Server error:", error.response);
         alert(`Server error: ${error.response.status} ${error.response.statusText}`);
       } else if (error.request) {
-        console.error("Network error:", error.request);
-        alert("Network error: Cannot reach backend. Make sure your server is running on localhost:8080");
+        alert("Network error: Cannot reach backend.");
       } else {
-        console.error("Error:", error.message);
         alert(`Error: ${error.message}`);
       }
     }
@@ -70,9 +67,8 @@ export default function AdminDashboardPage() {
           <button
             className="logout-btn"
             onClick={() => {
-              // Clear auth token if you have one
-              localStorage.removeItem("authToken"); // or sessionStorage
-              navigate("/"); // navigate to home page
+              localStorage.removeItem("authToken");
+              navigate("/");
             }}
           >
             Logout
@@ -90,6 +86,8 @@ export default function AdminDashboardPage() {
         <h2>Registered Users</h2>
         {loading ? (
           <p>Loading users...</p>
+        ) : error ? (
+          <p className="error">{error}</p>
         ) : users.length === 0 ? (
           <p>No users found.</p>
         ) : (
@@ -112,7 +110,7 @@ export default function AdminDashboardPage() {
                 >
                   <td>{user.firstName}</td>
                   <td>{user.lastName}</td>
-                  <td>{user.credentials?.email}</td>
+                  <td>{user.credentials?.email || user.email}</td>
                   <td>{user.gender}</td>
                   <td>{user.phoneNumber}</td>
                   <td>
