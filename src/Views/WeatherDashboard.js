@@ -42,7 +42,15 @@ export default function DashboardPage() {
   const navigate = useNavigate();
 
   const role = routerLocation.state?.role || "USER";
-  const firstName = routerLocation.state?.firstName || "User";
+    // Get firstName from localStorage
+    let firstName = "User";
+    const storedProfile = localStorage.getItem("userProfile");
+    if (storedProfile) {
+      try {
+        const parsed = JSON.parse(storedProfile);
+        if (parsed.firstName) firstName = parsed.firstName;
+      } catch {}
+    }
   const passedCity = routerLocation.state?.city || "";
 
   const [searchCity, setSearchCity] = useState(passedCity);
@@ -96,10 +104,9 @@ export default function DashboardPage() {
         {/* Search Section (Top / North) */}
         <section className="search-section">
           <h1>Weather Search</h1>
-          <p>
-            Welcome, <strong>{firstName}</strong>! Find real-time weather
-            conditions worldwide.
-          </p>
+            <p>
+              Welcome, <strong>{firstName}</strong>! Find real-time weather conditions worldwide.
+            </p>
           <div className="search-bar">
             <input
               type="text"
