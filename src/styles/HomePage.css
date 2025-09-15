@@ -1,90 +1,92 @@
-/* Container and overlay */
+/* General container */
 .home-container {
-  height: 100vh;
-  width: 100%;
+  min-height: 100vh;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  font-family: 'Roboto', sans-serif;
+  flex-direction: column;
+  background-size: cover;
+  background-position: center;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.home-overlay {
-  background-color: rgba(10, 97, 201, 0.75); /* Primary blue with transparency */
-  color: #ffffff;
-  text-align: center;
-  padding: 40px 60px;
-  border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+/* Navbar fixed at top */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 1rem 3rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+}
+
+.logo {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #004aad;
+}
+
+.nav-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-btn {
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+/* Login Button */
+.login-btn {
+  background: transparent;
+  border: 2px solid #004aad;
+  color: #004aad;
+}
+.login-btn:hover {
+  background: #004aad;
+  color: white;
+}
+
+/* Register Button */
+.register-btn {
+  background: #ffb703;
+  border: none;
+  color: white;
+}
+.register-btn:hover {
+  background: #ffa200;
+}
+
+/* Hero Section */
+.hero-section {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 0 10%;
+  margin-top: 80px; /* offset for navbar */
+}
+
+.hero-text {
   max-width: 500px;
 }
 
-/* Typography */
-.home-overlay h1 {
-  font-size: 2.5rem;
-  margin-bottom: 16px;
+.hero-text h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #004aad;
   font-weight: 700;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2); /* helps readability */
 }
 
-.home-overlay p {
-  font-size: 1.2rem;
-  margin-bottom: 32px;
-}
-
-/* Buttons */
-.home-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-}
-
-.primary-btn {
-  background-color: #0A61C9; /* Primary Blue */
-  color: #ffffff;
-  padding: 12px 28px;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.primary-btn:hover {
-  background-color: #064089; /* Darker Blue on hover */
-}
-
-.secondary-btn {
-  background-color: #ffffff;
-  color: #0A61C9;
-  padding: 12px 28px;
-  border: 2px solid #0A61C9;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.secondary-btn:hover {
-  background-color: #0A61C9;
-  color: #ffffff;
-}
-
-/* Responsive */
-@media (max-width: 600px) {
-  .home-overlay {
-    padding: 30px 20px;
-  }
-
-  .home-overlay h1 {
-    font-size: 2rem;
-  }
-
-  .home-overlay p {
-    font-size: 1rem;
-  }
-
-  .home-buttons {
-    flex-direction: column;
-    gap: 12px;
-  }
+.hero-text p {
+  font-size: 1.3rem;
+  color: #fff;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3); /* contrast with bg */
 }

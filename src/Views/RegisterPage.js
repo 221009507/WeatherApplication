@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { registerUser } from "../services/api";
 import "../styles/RegisterPage.css";
 
@@ -13,8 +13,10 @@ export default function RegisterPage() {
     email: "",
     phoneNumber: "",
     password: "",
-    adminCode: "" // optional
+    confirmPassword: ""
   });
+
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,25 +25,41 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { adminCode, ...payload } = formData;
+
+    // password validation
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match!");
+      return;
+    }
+
     try {
+      const { confirmPassword, ...payload } = formData; // exclude confirmPassword
       const response = await registerUser(payload);
       const profile = response.data;
+
       console.log("User registered:", profile);
       alert("Registered successfully!");
+
       // Save only needed fields in localStorage for account fetch
-      localStorage.setItem("userProfile", JSON.stringify({
-        userId: profile.userId,
-        firstName: profile.firstName,
-        lastName: profile.lastName,
-        email: profile.email,
-        gender: profile.gender,
-        phoneNumber: profile.phoneNumber
-      }));
+      localStorage.setItem(
+        "userProfile",
+        JSON.stringify({
+          userId: profile.userId,
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+          email: profile.email,
+          gender: profile.gender,
+          phoneNumber: profile.phoneNumber
+        })
+      );
+
       navigate("/dashboard", { state: { firstName: profile.firstName } });
     } catch (error) {
       console.error("Registration failed:", error.response || error);
-      alert(error.response?.data || "Registration failed! Check console for details.");
+      alert(
+        error.response?.data ||
+          "Registration failed! Check console for details."
+      );
     }
   };
 
@@ -50,6 +68,8 @@ export default function RegisterPage() {
       <div className="register-card">
         <h2>Register</h2>
         <form onSubmit={handleSubmit}>
+          {error && <p className="error-text">{error}</p>}
+
           <input
             type="text"
             name="firstName"
@@ -102,15 +122,22 @@ export default function RegisterPage() {
             required
           />
           <input
-            type="text"
-            name="adminCode"
-            placeholder="Admin Secret (optional)"
-            value={formData.adminCode}
+            type="password"
+            name="confirmPassword"
+            placeholder="Confirm Password"
+            value={formData.confirmPassword}
             onChange={handleChange}
+            required
           />
+
           <button type="submit" className="primary-btn">
             Register
           </button>
+
+          {/* Login link */}
+          <p className="login-link">
+            Already have an account? <Link to="/login">Login</Link>
+          </p>
         </form>
       </div>
     </div>

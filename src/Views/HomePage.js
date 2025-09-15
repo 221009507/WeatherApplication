@@ -10,25 +10,30 @@ export default function HomePage() {
       className="home-container"
       style={{ background: `url(${bgImage}) no-repeat center center/cover` }}
     >
-      <div className="home-overlay">
-        <h1>Welcome to Weather App 🌤️</h1>
-        <p>Check the weather in your city quickly and easily.</p>
-
-        {/* Buttons for navigation */}
-        <div className="home-buttons">
+      {/* Navigation Bar */}
+      <nav className="navbar">
+        <div className="logo">WeatherApp 🌤️</div>
+        <div className="nav-actions">
           <button
-            className="primary-btn"
+            className="nav-btn login-btn"
             onClick={() => navigate("/login")}
           >
             Login
           </button>
-
           <button
-            className="secondary-btn"
+            className="nav-btn register-btn"
             onClick={() => navigate("/register")}
           >
             Register
           </button>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <div className="home-overlay">
+        <div className="hero-text">
+          <h1>Welcome to Weather App 🌤️</h1>
+          <p>Check the weather in your city quickly and easily.</p>
         </div>
       </div>
     </div>
