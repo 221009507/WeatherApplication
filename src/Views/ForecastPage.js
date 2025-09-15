@@ -1,75 +1,126 @@
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/ForecastPage.css";
 
-export default function ForecastPage() {
-  const [forecastData, setForecastData] = useState([]);
-  const [accuracyData, setAccuracyData] = useState([]);
+const API_KEY = "854334a6547bd881a0ae9511d82da8d0"; // Replace with your key
 
-  // Load mock data
+const ForecastPage = () => {
+  const { state } = useLocation();
+  const navigate = useNavigate();
+  const [forecast, setForecast] = useState(null);
+  const [dailyData, setDailyData] = useState([]);
+  const [selectedDay, setSelectedDay] = useState(null);
+
   useEffect(() => {
-    setForecastData([
-      { id: "f1", day: "Tomorrow", temperature: 24, humidity: 60, windSpeed: 12, description: "Sunny" },
-      { id: "f2", day: "Day After", temperature: 22, humidity: 55, windSpeed: 10, description: "Cloudy" },
-      { id: "f3", day: "In 3 Days", temperature: 25, humidity: 65, windSpeed: 8, description: "Rain" },
-    ]);
+    if (!state || !state.city) {
+      navigate("/weather");
+      return;
+    }
 
-    setAccuracyData([
-      {
-        id: "a1",
-        forecastRecords: ["Sunny, 25°C", "Humidity 60%", "Wind 10km/h"],
-        accuracyScore: 92,
-        forecastDay: "Tomorrow",
-      },
-      {
-        id: "a2",
-        forecastRecords: ["Cloudy, 22°C", "Humidity 55%", "Wind 12km/h"],
-        accuracyScore: 88,
-        forecastDay: "Day After",
-      },
-      {
-        id: "a3",
-        forecastRecords: ["Rain, 25°C", "Humidity 65%", "Wind 8km/h"],
-        accuracyScore: 85,
-        forecastDay: "In 3 Days",
-      },
-    ]);
-  }, []);
+    async function fetchForecast() {
+      try {
+        const res = await axios.get(
+          `https://api.openweathermap.org/data/2.5/forecast?q=${state.city}&units=metric&appid=${API_KEY}`
+        );
 
-  const getAccuracyForDay = (day) => accuracyData.find(a => a.forecastDay === day);
+        if (!res.data.list) {
+          alert("No forecast data found.");
+          return;
+        }
+
+        const days = {};
+        res.data.list.forEach((item) => {
+          const date = new Date(item.dt_txt).toLocaleDateString("en-US", {
+            weekday: "short",
+            month: "short",
+            day: "numeric",
+          });
+          if (!days[date]) days[date] = [];
+          days[date].push(item);
+        });
+
+        const daily = Object.entries(days).map(([date, data]) => ({
+          date,
+          tempMax: Math.max(...data.map((d) => d.main.temp_max)),
+          tempMin: Math.min(...data.map((d) => d.main.temp_min)),
+          pop: Math.round((data[0].pop || 0) * 100),
+          icon: data[0].weather[0].icon,
+          description: data[0].weather[0].main,
+          details: data,
+        }));
+
+        setForecast(res.data);
+        setDailyData(daily);
+        setSelectedDay(daily[0]);
+      } catch (err) {
+        console.error("Forecast fetch error:", err);
+        alert("Could not fetch forecast. Try again.");
+      }
+    }
+
+    fetchForecast();
+  }, [state, navigate]);
+
+  if (!forecast)
+    return (
+      <div className="loading-container">
+        <p className="loading-text">Loading forecast data...</p>
+      </div>
+    );
 
   return (
-    <div className="forecast-page">
-      <h1>Forecast Dashboard 🌤️</h1>
+    <div className="forecast-container">
+      <div className="forecast-header">
+        <h1>Weather Forecast for <span className="city-name">{state.city}</span></h1>
+      </div>
 
-      <section>
-        <h2>Upcoming Forecast</h2>
-        <div className="forecast-grid">
-          {forecastData.map(f => {
-            const accuracy = getAccuracyForDay(f.day);
-            return (
-              <div key={f.id} className="forecast-card">
-                <h3>{f.day}</h3>
-                <p>🌡 Temp: {f.temperature}°C</p>
-                <p>💧 Humidity: {f.humidity}%</p>
-                <p>💨 Wind: {f.windSpeed} km/h</p>
-                <p>☁️ {f.description}</p>
+      {/* Forecast Cards */}
+      <div className="forecast-grid">
+        {dailyData.map((day, index) => (
+          <div
+            key={index}
+            onClick={() => setSelectedDay(day)}
+            className={`forecast-card ${selectedDay?.date === day.date ? 'selected' : ''}`}
+          >
+            <h3>{day.date}</h3>
+            <img
+              src={`https://openweathermap.org/img/wn/${day.icon}@2x.png`}
+              alt={day.description}
+              className="weather-icon"
+            />
+            <div className="temperature">
+              {Math.round(day.tempMax)}° / {Math.round(day.tempMin)}°
+            </div>
+            <p className="precipitation">{day.pop}% chance of rain</p>
+          </div>
+        ))}
+      </div>
 
-                {accuracy && (
-                  <div className="accuracy-section">
-                    <p>📊 Accuracy Score: {accuracy.accuracyScore}%</p>
-                    <p>📝 Records:</p>
-                    <ul>
-                      {accuracy.forecastRecords.map((rec, idx) => (
-                        <li key={idx}>• {rec}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+      {/* Selected Day Details */}
+      {selectedDay && (
+        <div className="weather-details">
+          <h2>{selectedDay.date} - Detailed Forecast</h2>
+          <div className="detail-item">
+            <span className="detail-label">Maximum Temperature:</span>
+            <span className="detail-value">{Math.round(selectedDay.tempMax)}°C</span>
+          </div>
+          <div className="detail-item">
+            <span className="detail-label">Minimum Temperature:</span>
+            <span className="detail-value">{Math.round(selectedDay.tempMin)}°C</span>
+          </div>
+          <div className="detail-item">
+            <span className="detail-label">Weather Condition:</span>
+            <span className="detail-value">{selectedDay.description}</span>
+          </div>
+          <div className="detail-item">
+            <span className="detail-label">Chance of Precipitation:</span>
+            <span className="detail-value">{selectedDay.pop}%</span>
+          </div>
         </div>
-      </section>
+      )}
     </div>
   );
-}
+};
+
+export default ForecastPage;
