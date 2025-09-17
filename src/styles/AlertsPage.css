@@ -1,76 +1,124 @@
-/* ---------------- General ---------------- */
+/* Page background */
 .alerts-page {
-  max-width: 1200px;
-  margin: auto;
-  padding: 20px 40px;
+  min-height: 100vh;
+  background: linear-gradient(145deg, #eaf4ff, #ffffff);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding-bottom: 50px;
 }
 
-.alerts-page h1 {
-  color: #0A61C9;
-  text-align: center;
-  margin-bottom: 32px;
-}
-
-/* ---------------- Alerts Container ---------------- */
-.alerts-container {
+/* Navbar */
+.alerts-navbar {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-/* ---------------- Alert Card ---------------- */
-.alert-card {
-  background-color: #FFFFFF;
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background: linear-gradient(135deg, #4da6ff, #0a61c9);
+  color: white;
+  border-radius: 0 0 20px 20px; /* rounded bottom corners */
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+  margin-bottom: 30px;
   position: relative;
+}
+
+.alerts-navbar h1 {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+/* Dashboard button smaller in corner */
+.dashboard-btn {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  border: none;
+  border-radius: 12px;
+  background-color: #ffffff;
+  color: #0a61c9;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.12);
+  transition: all 0.3s ease;
+}
+
+.dashboard-btn:hover {
+  background-color: #e0e6f2;
+  transform: translateY(-2px);
+}
+
+/* Main container */
+.alerts-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Info & Error messages */
+.info-msg,
+.error-msg {
+  text-align: center;
+  font-size: 1.1rem;
+  margin: 1rem 0;
+}
+
+.error-msg {
+  color: #e60000;
+}
+
+/* Alerts list */
+.alerts-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  transition: transform 0.2s ease;
+  gap: 20px;
+}
+
+/* Individual alert card */
+.alert-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 20px 25px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .alert-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
 }
 
-/* Left border for severity color */
-.alert-card::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 5px;
-  border-radius: 16px 0 0 16px;
-}
-
-/* Severity Badge */
-.severity {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 12px;
-  color: #fff;
-  font-weight: 500;
-  font-size: 0.85rem;
-  align-self: flex-start;
-}
-
-/* Alert text */
-.alert-card h3 {
-  margin: 0;
-  color: #064089;
+.alert-card h2 {
+  margin-bottom: 10px;
+  color: #0a61c9;
 }
 
 .alert-card p {
-  margin: 0;
-  color: #1B1B1B;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.alert-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* Severity colors */
+.low {
+  border-left: 5px solid #28a745;
+}
+
+.medium {
+  border-left: 5px solid #ff9800;
+}
+
+.high {
+  border-left: 5px solid #e60000;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .alerts-page {
-    padding: 20px;
+  .alerts-container {
+    padding: 0 15px;
   }
 }

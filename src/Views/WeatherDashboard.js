@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import weatherService from "../services/weatherService";
 import "../styles/WeatherDashboard.css";
 
 function Sidebar({ onLogout }) {
@@ -42,15 +43,16 @@ export default function DashboardPage() {
   const navigate = useNavigate();
 
   const role = routerLocation.state?.role || "USER";
-    // Get firstName from localStorage
-    let firstName = "User";
-    const storedProfile = localStorage.getItem("userProfile");
-    if (storedProfile) {
-      try {
-        const parsed = JSON.parse(storedProfile);
-        if (parsed.firstName) firstName = parsed.firstName;
-      } catch {}
-    }
+
+  let firstName = "User";
+  const storedProfile = localStorage.getItem("userProfile");
+  if (storedProfile) {
+    try {
+      const parsed = JSON.parse(storedProfile);
+      if (parsed.firstName) firstName = parsed.firstName;
+    } catch {}
+  }
+
   const passedCity = routerLocation.state?.city || "";
 
   const [searchCity, setSearchCity] = useState(passedCity);
@@ -68,26 +70,35 @@ export default function DashboardPage() {
 
   const handleSearchChange = (e) => setSearchCity(e.target.value);
 
-  const fetchWeatherData = (city) => {
+  const fetchWeatherData = async (city) => {
     if (!city) return;
     setSelectedCity(city);
-    setWeather({
-      city,
-      temperature: 24,
-      feelsLike: 27,
-      condition: "Partly Cloudy",
-      wind: "12 km/h",
-      visibility: "16 km",
-      humidity: "65%",
-      pressure: "1013 hPa",
-      uvIndex: 6,
-    });
 
-    // update recent searches
-    setRecentSearches((prev) => {
-      const updated = [city, ...prev.filter((c) => c !== city)];
-      return updated.slice(0, 5); // keep only last 5
-    });
+    try {
+      const data = await weatherService.getByCityName(city);
+      if (!data) return;
+
+      const w = Array.isArray(data) ? data[0] : data;
+
+      setWeather({
+        city: w.location.cityName,
+        temperature: w.temperatureCurrent,
+        feelsLike: w.feelsLike,
+        condition: w.condition,
+        wind: `${w.windSpeed} km/h`,
+        visibility: `${w.visibility} km`,
+        humidity: `${w.humidity}%`,
+        pressure: `${w.pressure || "1013 hPa"}`,
+        uvIndex: w.uvIndex,
+      });
+
+      setRecentSearches((prev) => {
+        const updated = [city, ...prev.filter((c) => c !== city)];
+        return updated.slice(0, 5);
+      });
+    } catch (error) {
+      console.error("Failed to fetch weather data:", error);
+    }
   };
 
   const handleSearch = () => fetchWeatherData(searchCity);
@@ -101,12 +112,11 @@ export default function DashboardPage() {
     <div className="dashboard-container">
       <Sidebar onLogout={handleLogout} />
       <main className="main-content">
-        {/* Search Section (Top / North) */}
         <section className="search-section">
           <h1>Weather Search</h1>
-            <p>
-              Welcome, <strong>{firstName}</strong>! Find real-time weather conditions worldwide.
-            </p>
+          <p>
+            Welcome, <strong>{firstName}</strong>! Find real-time weather conditions worldwide.
+          </p>
           <div className="search-bar">
             <input
               type="text"
@@ -117,7 +127,6 @@ export default function DashboardPage() {
             <button onClick={handleSearch}>🔍</button>
           </div>
 
-          {/* Recent Searches */}
           {recentSearches.length > 0 && (
             <div className="recent-searches">
               <h3>Recent Searches</h3>
@@ -132,7 +141,6 @@ export default function DashboardPage() {
           )}
         </section>
 
-        {/* Weather Card (Bottom / South) */}
         {weather && (
           <section className="weather-card">
             <div className="weather-info">

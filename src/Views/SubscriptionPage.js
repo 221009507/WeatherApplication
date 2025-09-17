@@ -1,30 +1,36 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/SubscriptionPage.css";
+import subscriptionImg from "../images/subscriptionImg.png";
 
 export default function SubscriptionPage() {
+  const navigate = useNavigate();
+
+  const userProfile = JSON.parse(localStorage.getItem("userProfile"));
+  const userEmail = userProfile?.email;
+
   const [subscriptionTypes, setSubscriptionTypes] = useState([]);
   const [userSubscriptions, setUserSubscriptions] = useState([]);
-  const userEmail = "testuser@example.com"; // TODO: replace with logged-in user’s email
 
-  // Load available plans (mock for now, can later fetch from backend if you store them there)
   useEffect(() => {
-    const types = [
-      { id: "1", name: "Basic", price: 50, duration: "1 Month", features: ["Standard Forecast"] },
-      { id: "2", name: "Premium", price: 120, duration: "1 Month", features: ["Ad-free", "Detailed Forecast"] },
-      { id: "3", name: "Annual", price: 1000, duration: "12 Months", features: ["All Features"] },
-    ];
-    setSubscriptionTypes(types);
+    if (!userEmail) return;
 
-    // Fetch user’s subscriptions from backend
     axios
-      .get(`http://localhost:8080/api/user-subscriptions/${userEmail}`)
+      .get("http://localhost:8080/subscription/getAll")
+      .then((res) => setSubscriptionTypes(res.data))
+      .catch((err) => console.error(err));
+
+    axios
+      //.get(`http://localhost:8080/api/user-subscriptions/user?email=${userEmail}`)
+      .get(`http://localhost:8080/api/user-subscriptions/user/${userEmail}`)
+
       .then((res) => setUserSubscriptions(res.data))
       .catch((err) => console.error(err));
   }, [userEmail]);
 
-  // Subscribe user
   const subscribe = (type) => {
+    console.log("current subscriptions:", userSubscriptions);
     axios
       .post("http://localhost:8080/api/user-subscriptions", {
         email: userEmail,
@@ -32,68 +38,65 @@ export default function SubscriptionPage() {
         price: type.price,
         duration: type.duration,
       })
-      .then((res) => setUserSubscriptions((prev) => [...prev, res.data]))
+      .then((res) => setUserSubscriptions([...userSubscriptions, res.data]))
       .catch((err) => console.error(err));
   };
 
-  // Unsubscribe user
-  const unsubscribe = (id) => {
-    axios
-      .put(`http://localhost:8080/api/user-subscriptions/unsubscribe/${id}`)
-      .then((res) =>
-        setUserSubscriptions((prev) =>
-          prev.map((sub) => (sub.id === id ? res.data : sub))
-        )
-      )
-      .catch((err) => console.error(err));
-  };
+  const isSubscribed = (planName) =>
+    userSubscriptions.some((sub) => sub.name === planName);
 
   return (
     <div className="subscription-page">
-      <h1>Subscriptions</h1>
+      
+     <nav className="subscription-navbar">
+  <h1>Subscription</h1>
+  <div className="navbar-right">
+    <button className="navbar-btn dashboard" onClick={() => navigate("/dashboard")}>
+      Dashboard
+    </button>
+  </div>
+</nav>
 
-      <section className="available-subscriptions">
-        <h2>Available Plans</h2>
-        <div className="subscription-grid">
-          {subscriptionTypes.map((type) => (
-            <div key={type.id} className="subscription-card">
-              <h3>{type.name}</h3>
-              <p>💰 Price: R{type.price}</p>
-              <p>⏱ Duration: {type.duration}</p>
-              <p>⭐ Features: {type.features.join(", ")}</p>
-              <button onClick={() => subscribe(type)}>Subscribe</button>
+      <header className="subscription-header">
+        <h1>Level up your forecast</h1>
+      </header>
+
+      <div className="subscription-image">
+        <img src={subscriptionImg} alt="Subscription Preview" />
+      </div>
+
+      <section className="plans-section">
+        {subscriptionTypes.map((type) => (
+          <div key={type.subscriptionId} className="plan-card">
+            {isSubscribed(type.name) && <div className="subscribed-badge">Subscribed</div>}
+            {type.trial && <div className="trial-badge">{type.trial}</div>}
+
+            <h2>{type.name}</h2>
+            <p className="price">
+              R{type.price} <span>{type.billing}</span>
+            </p>
+
+            <div className="features-list">
+              {type.features?.map((feature, idx) => (
+                <div key={idx} className="feature-item">
+                  <span>✔</span> {feature}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </section>
 
-      <section className="user-subscriptions">
-        <h2>My Subscriptions</h2>
-        {userSubscriptions.length === 0 && <p>No subscriptions yet.</p>}
-        <div className="subscription-grid">
-          {userSubscriptions.map((sub) => (
-            <div
-              key={sub.id}
-              className={`subscription-card ${sub.active ? "active" : "inactive"}`}
+            <button
+              onClick={() => subscribe(type)}
+              className="subscribe-btn"
+              disabled={isSubscribed(type.name)}
             >
-              {sub.active && <span className="active-badge">Active</span>}
-              <h3>{sub.name}</h3>
-              <p>💰 Price: R{sub.price}</p>
-              <p>⏱ Duration: {sub.duration}</p>
-              <p>Start: {sub.startDate}</p>
-              <p>End: {sub.endDate}</p>
-              <p>Status: {sub.active ? "Active ✅" : "Inactive ❌"}</p>
-              {sub.active && (
-                <button
-                  className="unsubscribe-btn"
-                  onClick={() => unsubscribe(sub.id)}
-                >
-                  Unsubscribe
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
+              {isSubscribed(type.name)
+                ? "Subscribed"
+                : type.trial
+                ? "Start My Trial"
+                : "Subscribe"}
+            </button>
+          </div>
+        ))}
       </section>
     </div>
   );

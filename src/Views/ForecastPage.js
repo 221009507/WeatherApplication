@@ -1,126 +1,93 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import forecastService from "../services/forecastService";
 import "../styles/ForecastPage.css";
 
-const API_KEY = "854334a6547bd881a0ae9511d82da8d0"; // Replace with your key
-
-const ForecastPage = () => {
-  const { state } = useLocation();
+export default function ForecastPage() {
   const navigate = useNavigate();
-  const [forecast, setForecast] = useState(null);
-  const [dailyData, setDailyData] = useState([]);
-  const [selectedDay, setSelectedDay] = useState(null);
+  const location = useLocation();
+  const passedCity = location.state?.city || "";
 
-  useEffect(() => {
-    if (!state || !state.city) {
-      navigate("/weather");
+  const [selectedCity, setSelectedCity] = useState(passedCity);
+  const [forecasts, setForecasts] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // Stable handleSearch using useCallback
+  const handleSearch = useCallback(async () => {
+    // Move availableCities inside useCallback to satisfy ESLint
+    const availableCities = [
+      "Johannesburg",
+      "Cape Town",
+      "George",
+      "East London",
+      "Durban"
+    ];
+
+    if (!availableCities.includes(selectedCity)) {
+      setForecasts([]);
+      setErrorMessage("City not available.");
       return;
     }
 
-    async function fetchForecast() {
-      try {
-        const res = await axios.get(
-          `https://api.openweathermap.org/data/2.5/forecast?q=${state.city}&units=metric&appid=${API_KEY}`
-        );
-
-        if (!res.data.list) {
-          alert("No forecast data found.");
-          return;
-        }
-
-        const days = {};
-        res.data.list.forEach((item) => {
-          const date = new Date(item.dt_txt).toLocaleDateString("en-US", {
-            weekday: "short",
-            month: "short",
-            day: "numeric",
-          });
-          if (!days[date]) days[date] = [];
-          days[date].push(item);
-        });
-
-        const daily = Object.entries(days).map(([date, data]) => ({
-          date,
-          tempMax: Math.max(...data.map((d) => d.main.temp_max)),
-          tempMin: Math.min(...data.map((d) => d.main.temp_min)),
-          pop: Math.round((data[0].pop || 0) * 100),
-          icon: data[0].weather[0].icon,
-          description: data[0].weather[0].main,
-          details: data,
-        }));
-
-        setForecast(res.data);
-        setDailyData(daily);
-        setSelectedDay(daily[0]);
-      } catch (err) {
-        console.error("Forecast fetch error:", err);
-        alert("Could not fetch forecast. Try again.");
-      }
+    try {
+      const data = await forecastService.getByCity(selectedCity);
+      setForecasts(data.slice(0, 3)); // show first 3 forecasts
+      setErrorMessage("");
+    } catch (error) {
+      console.error("Failed to fetch forecasts:", error);
+      setForecasts([]);
+      setErrorMessage("Failed to fetch forecasts.");
     }
+  }, [selectedCity]);
 
-    fetchForecast();
-  }, [state, navigate]);
+  // Run on initial load if passedCity exists
+  useEffect(() => {
+    if (passedCity) handleSearch();
+  }, [passedCity, handleSearch]);
 
-  if (!forecast)
-    return (
-      <div className="loading-container">
-        <p className="loading-text">Loading forecast data...</p>
-      </div>
-    );
+  const handleCityChange = (e) => {
+    setSelectedCity(e.target.value);
+    setErrorMessage(""); // reset error on input change
+  };
 
   return (
     <div className="forecast-container">
-      <div className="forecast-header">
-        <h1>Weather Forecast for <span className="city-name">{state.city}</span></h1>
-      </div>
-
-      {/* Forecast Cards */}
-      <div className="forecast-grid">
-        {dailyData.map((day, index) => (
-          <div
-            key={index}
-            onClick={() => setSelectedDay(day)}
-            className={`forecast-card ${selectedDay?.date === day.date ? 'selected' : ''}`}
-          >
-            <h3>{day.date}</h3>
-            <img
-              src={`https://openweathermap.org/img/wn/${day.icon}@2x.png`}
-              alt={day.description}
-              className="weather-icon"
+      <main className="forecast-main">
+        <section className="forecast-search">
+          <h1>Forecast</h1>
+          <div className="search-bar">
+            <input
+              type="text"
+              placeholder="Enter a city..."
+              value={selectedCity}
+              onChange={handleCityChange}
             />
-            <div className="temperature">
-              {Math.round(day.tempMax)}° / {Math.round(day.tempMin)}°
-            </div>
-            <p className="precipitation">{day.pop}% chance of rain</p>
+            <button onClick={handleSearch}>🔍</button>
+            <button onClick={() => navigate("/dashboard")}>← Back</button>
           </div>
-        ))}
-      </div>
+          {errorMessage && <p className="error">{errorMessage}</p>}
+        </section>
 
-      {/* Selected Day Details */}
-      {selectedDay && (
-        <div className="weather-details">
-          <h2>{selectedDay.date} - Detailed Forecast</h2>
-          <div className="detail-item">
-            <span className="detail-label">Maximum Temperature:</span>
-            <span className="detail-value">{Math.round(selectedDay.tempMax)}°C</span>
-          </div>
-          <div className="detail-item">
-            <span className="detail-label">Minimum Temperature:</span>
-            <span className="detail-value">{Math.round(selectedDay.tempMin)}°C</span>
-          </div>
-          <div className="detail-item">
-            <span className="detail-label">Weather Condition:</span>
-            <span className="detail-value">{selectedDay.description}</span>
-          </div>
-          <div className="detail-item">
-            <span className="detail-label">Chance of Precipitation:</span>
-            <span className="detail-value">{selectedDay.pop}%</span>
-          </div>
-        </div>
-      )}
+        <section className="forecast-details">
+          {forecasts.length === 0 && !errorMessage && (
+            <p>No forecasts available for this city.</p>
+          )}
+          {forecasts.map((f, index) => (
+            <div key={index} className="forecast-fields">
+              <h2>Forecast {index + 1}</h2>
+              <p><strong>Forecast Time:</strong> {f.forecastTime}</p>
+              <p><strong>Temperature:</strong> {f.temperature.toFixed(1)}°C</p>
+              <p><strong>Feels Like:</strong> {f.feelsLike.toFixed(1)}°C</p>
+              <p><strong>Condition:</strong> {f.condition}</p>
+              <p><strong>Wind Speed:</strong> {f.windSpeed.toFixed(1)} km/h</p>
+              <p><strong>Humidity:</strong> {f.humidity}%</p>
+              <p><strong>Pressure:</strong> {f.pressure} hPa</p>
+              <p><strong>UV Index:</strong> {f.uvIndex.toFixed(1)}</p>
+              <hr />
+            </div>
+          ))}
+        </section>
+      </main>
     </div>
   );
-};
-
-export default ForecastPage;
+}

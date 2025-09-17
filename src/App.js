@@ -5,6 +5,7 @@ import RegisterPage from "./Views/RegisterPage";
 import WeatherDashboard from "./Views/WeatherDashboard";
 import LocationsPage from "./Views/LocationsPage";
 import AlertsPage from "./Views/AlertsPage";
+import AdminAlertsPage from "./Views/AdminAlertsPage"; // admin alerts page
 import UserProfile from "./Views/UserProfile";
 
 // New pages
@@ -14,7 +15,7 @@ import SubscriptionPage from "./Views/SubscriptionPage";
 import ReportsPage from "./Views/ReportsPage";
 import ForecastPage from "./Views/ForecastPage";
 
-import AdminDashboardPage from "./Views/AdminDashBoard"; // import admin page
+import AdminDashboardPage from "./Views/AdminDashBoard"; // admin dashboard
 
 function App() {
   return (
@@ -26,7 +27,11 @@ function App() {
         <Route path="/dashboard" element={<WeatherDashboard />} />
         <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
         <Route path="/locations" element={<LocationsPage />} />
-        <Route path="/alerts" element={<AlertsPage />} />
+
+        {/* Alerts routes */}
+        <Route path="/alerts" element={<AlertsPage />} />           {/* user view */}
+        <Route path="/admin/alerts" element={<AdminAlertsPage />} /> {/* admin create */}
+
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/events" element={<EventPage />} />
         <Route path="/venues" element={<VenuePage />} />

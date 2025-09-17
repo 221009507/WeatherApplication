@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { getUserById, updateUser, deleteUser } from "../services/api";
 import avatarImg from "../images/user.png";
+import "../styles/ProfilePage.css";
 
 export default function UserProfile() {
+  const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [formData, setFormData] = useState({
     firstName: "",
@@ -66,14 +69,13 @@ export default function UserProfile() {
     setIsEditing(false);
   };
 
-  // Delete user account
   const handleDeleteAccount = async () => {
     if (!window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) return;
     try {
       await deleteUser(formData.userId);
       alert("Account deleted successfully.");
       localStorage.removeItem("userProfile");
-      window.location.href = "/login";
+      navigate("/login");
     } catch (err) {
       console.error("Delete error:", err);
       alert("Failed to delete account.");
@@ -85,16 +87,21 @@ export default function UserProfile() {
 
   return (
     <div className="profile-page">
-      <h1>User Profile</h1>
+      {/* Header with back button */}
+      <div className="profile-header">
+        <h1>User Profile</h1>
+        <button className="primary back-btn" onClick={() => navigate("/dashboard")}>
+          ← Dashboard
+        </button>
+      </div>
+
       <div className="profile-container">
         <div className="profile-avatar-section">
           <img src={avatarImg} alt="Profile Avatar" className="profile-avatar" />
           <p className="user-name">{formData.firstName} {formData.lastName}</p>
           <p className="user-email">{formData.email}</p>
           {!isEditing && (
-            <button className="primary" onClick={() => setIsEditing(true)}>
-              Edit Profile
-            </button>
+            <button className="primary" onClick={() => setIsEditing(true)}>Edit Profile</button>
           )}
         </div>
 

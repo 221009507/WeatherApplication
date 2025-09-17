@@ -1,41 +1,60 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import locationService from "../services/locationService"; // Axios service
 import "../styles/LocationsPage.css";
 
 export default function LocationsPage() {
   const navigate = useNavigate();
-  const [location, setLocation] = useState({ city: "", country: "" });
+  const [location, setLocation] = useState({
+    cityName: "",
+    country: "",
+    latitude: "",
+    longitude: "",
+  });
   const [locations, setLocations] = useState([]);
   const [history, setHistory] = useState([]);
 
+  // Fetch all locations from backend
   useEffect(() => {
-    const savedLocations = localStorage.getItem("locations");
-    const savedHistory = localStorage.getItem("locationHistory");
-    if (savedLocations) setLocations(JSON.parse(savedLocations));
-    if (savedHistory) setHistory(JSON.parse(savedHistory));
+    fetchLocations();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem("locations", JSON.stringify(locations));
-    localStorage.setItem("locationHistory", JSON.stringify(history));
-  }, [locations, history]);
-
-  const handleChange = (e) => setLocation({ ...location, [e.target.name]: e.target.value });
-
-  const addLocation = () => {
-    if (!location.city || !location.country) return;
-    const newLocation = {
-      id: Date.now().toString(),
-      city: location.city,
-      country: location.country,
-      timestamp: new Date().toLocaleString(),
-    };
-    setLocations(prev => [...prev, newLocation]);
-    setHistory(prev => [location.city, ...prev.filter(h => h !== location.city)]);
-    setLocation({ city: "", country: "" });
+  const fetchLocations = async () => {
+    try {
+      const data = await locationService.getAll();
+      setLocations(data);
+    } catch (error) {
+      console.error("Failed to fetch locations:", error);
+    }
   };
 
-  const removeLocation = (id) => setLocations(prev => prev.filter(loc => loc.id !== id));
+  const handleChange = (e) =>
+    setLocation({ ...location, [e.target.name]: e.target.value });
+
+  const addLocation = async () => {
+    if (!location.cityName || !location.country) return;
+
+    try {
+      const newLoc = await locationService.create(location);
+      setLocations((prev) => [...prev, newLoc]);
+      setHistory((prev) => [
+        location.cityName,
+        ...prev.filter((h) => h !== location.cityName),
+      ]);
+      setLocation({ cityName: "", country: "", latitude: "", longitude: "" });
+    } catch (error) {
+      console.error("Failed to add location:", error);
+    }
+  };
+
+  const removeLocation = async (id) => {
+    try {
+      await locationService.delete(id);
+      setLocations((prev) => prev.filter((loc) => loc.locationId !== id));
+    } catch (error) {
+      console.error("Failed to remove location:", error);
+    }
+  };
 
   const openDashboard = (city) => {
     navigate("/dashboard", { state: { city } });
@@ -43,14 +62,20 @@ export default function LocationsPage() {
 
   return (
     <div className="locations-dashboard">
+      {/* Back Button */}
+      <button className="back-btn" onClick={() => navigate("/dashboard")}>
+        ← Back to Dashboard
+      </button>
+
       <h1>My Locations</h1>
 
-      <div className="location-input">
+      {/* Location Input Card */}
+      <div className="location-input-card">
         <input
           type="text"
-          name="city"
+          name="cityName"
           placeholder="City"
-          value={location.city}
+          value={location.cityName}
           onChange={handleChange}
         />
         <input
@@ -60,22 +85,46 @@ export default function LocationsPage() {
           value={location.country}
           onChange={handleChange}
         />
-        <button onClick={addLocation}>Add Location</button>
+        <input
+          type="text"
+          name="latitude"
+          placeholder="Latitude"
+          value={location.latitude}
+          onChange={handleChange}
+        />
+        <input
+          type="text"
+          name="longitude"
+          placeholder="Longitude"
+          value={location.longitude}
+          onChange={handleChange}
+        />
+        <button className="add-btn" onClick={addLocation}>
+          Add Location
+        </button>
       </div>
 
       <h2>Current Locations</h2>
       <div className="locations-grid">
-        {locations.map(loc => (
-          <div key={loc.id} className="location-card">
+        {locations.map((loc) => (
+          <div key={loc.locationId} className="location-card">
             <div
               className="location-info"
-              onClick={() => openDashboard(loc.city)}
+              onClick={() => openDashboard(loc.cityName)}
               style={{ cursor: "pointer" }}
             >
-              <p className="location-name">{loc.city}, {loc.country}</p>
-              <p>Added: {loc.timestamp}</p>
+              <p className="location-name">
+                {loc.cityName}, {loc.country}
+              </p>
+              {loc.latitude && loc.longitude && (
+                <p>
+                  Lat: {loc.latitude}, Lon: {loc.longitude}
+                </p>
+              )}
             </div>
-            <button onClick={() => removeLocation(loc.id)}>Remove</button>
+            <button onClick={() => removeLocation(loc.locationId)}>
+              Remove
+            </button>
           </div>
         ))}
       </div>

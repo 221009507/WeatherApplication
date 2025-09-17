@@ -57,24 +57,27 @@ export default function AdminDashboardPage() {
     <div className="admin-dashboard-container">
       {/* Navbar */}
       <nav className="admin-navbar">
-        <h1>Admin Panel</h1>
-        <div className="navbar-right">
-          <ul className="navbar-links">
-            <li>
-              <Link to="/venues">Venue</Link>
-            </li>
-          </ul>
-          <button
-            className="logout-btn"
-            onClick={() => {
-              localStorage.removeItem("authToken");
-              navigate("/");
-            }}
-          >
-            Logout
-          </button>
-        </div>
-      </nav>
+  <h1>Admin Panel</h1>
+  <div className="navbar-right">
+    <ul className="navbar-links">
+      <li>
+        <Link to="/venues">Venue</Link>
+      </li>
+      <li>
+        <Link to="/admin/alerts">Alerts</Link> {/* NEW LINK */}
+      </li>
+    </ul>
+    <button
+      className="logout-btn"
+      onClick={() => {
+        localStorage.removeItem("authToken");
+        navigate("/");
+      }}
+    >
+      Logout
+    </button>
+  </div>
+</nav>
 
       {/* Welcome Section */}
       <section className="welcome-section">
