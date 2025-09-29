@@ -38,12 +38,13 @@ function Sidebar({ onLogout }) {
   );
 }
 
-export default function DashboardPage() {
+export default function WeatherDashboard() {
   const routerLocation = useLocation();
   const navigate = useNavigate();
 
   const role = routerLocation.state?.role || "USER";
 
+  // Get user first name from localStorage
   let firstName = "User";
   const storedProfile = localStorage.getItem("userProfile");
   if (storedProfile) {
@@ -60,10 +61,12 @@ export default function DashboardPage() {
   const [weather, setWeather] = useState(null);
   const [recentSearches, setRecentSearches] = useState([]);
 
+  // Redirect admin to admin dashboard
   useEffect(() => {
     if (role === "ADMIN") navigate("/admin-dashboard");
   }, [role, navigate]);
 
+  // Fetch weather on initial city
   useEffect(() => {
     if (passedCity) fetchWeatherData(passedCity);
   }, [passedCity]);
@@ -75,10 +78,8 @@ export default function DashboardPage() {
     setSelectedCity(city);
 
     try {
-      const data = await weatherService.getByCityName(city);
-      if (!data) return;
-
-      const w = Array.isArray(data) ? data[0] : data;
+      const w = await weatherService.getLiveWeather(city);
+      if (!w) return;
 
       setWeather({
         city: w.location.cityName,
@@ -86,18 +87,18 @@ export default function DashboardPage() {
         feelsLike: w.feelsLike,
         condition: w.condition,
         wind: `${w.windSpeed} km/h`,
-        visibility: `${w.visibility} km`,
+        visibility: w.visibility ? `${(w.visibility / 1000).toFixed(1)} km` : "N/A",
         humidity: `${w.humidity}%`,
-        pressure: `${w.pressure || "1013 hPa"}`,
-        uvIndex: w.uvIndex,
+        pressure: w.pressure !== undefined ? `${w.pressure} hPa` : "1013 hPa",
+        uvIndex: w.uvIndex ?? 0,
       });
 
       setRecentSearches((prev) => {
-        const updated = [city, ...prev.filter((c) => c !== city)];
+        const updated = [city.trim(), ...prev.filter((c) => c.trim() !== city.trim())];
         return updated.slice(0, 5);
       });
     } catch (error) {
-      console.error("Failed to fetch weather data:", error);
+      console.error("Failed to fetch live weather data:", error);
     }
   };
 
@@ -108,6 +109,24 @@ export default function DashboardPage() {
     navigate("/");
   };
 
+  const conditionIcons = {
+    cloud: "☁️",
+    rain: "🌧️",
+    storm: "⛈️",
+    snow: "❄️",
+    fog: "🌫️",
+    mist: "🌫️",
+  };
+
+  const getWeatherIcon = (condition) => {
+    if (!condition) return "☀️";
+    const cond = condition.toLowerCase();
+    for (const key in conditionIcons) {
+      if (cond.includes(key)) return conditionIcons[key];
+    }
+    return "☀️";
+  };
+
   return (
     <div className="dashboard-container">
       <Sidebar onLogout={handleLogout} />
@@ -115,7 +134,7 @@ export default function DashboardPage() {
         <section className="search-section">
           <h1>Weather Search</h1>
           <p>
-            Welcome, <strong>{firstName}</strong>! Find real-time weather conditions worldwide.
+            Welcome, <strong>{firstName}</strong>! Check real-time weather worldwide.
           </p>
           <div className="search-bar">
             <input
@@ -124,7 +143,9 @@ export default function DashboardPage() {
               value={searchCity}
               onChange={handleSearchChange}
             />
-            <button onClick={handleSearch}>🔍</button>
+            <button onClick={handleSearch} disabled={!searchCity}>
+              🔍
+            </button>
           </div>
 
           {recentSearches.length > 0 && (
@@ -142,18 +163,23 @@ export default function DashboardPage() {
         </section>
 
         {weather && (
-          <section className="weather-card">
-            <div className="weather-info">
+          <section className={`weather-card ${weather.condition?.toLowerCase()}`}>
+            <div className="weather-header">
+              <div className="weather-icon">{getWeatherIcon(weather.condition)}</div>
               <h2>{selectedCity || weather.city}</h2>
+            </div>
+
+            <div className="weather-main">
               <p className="temp">{weather.temperature}°</p>
               <p className="condition">{weather.condition}</p>
-              <p>Feels like {weather.feelsLike}°</p>
-              <p>Wind: {weather.wind}</p>
-              <p>Visibility: {weather.visibility}</p>
+              <p className="feels-like">Feels like {weather.feelsLike}°</p>
             </div>
+
             <div className="weather-stats">
               <p>💧 Humidity: {weather.humidity}</p>
               <p>🌡️ Pressure: {weather.pressure}</p>
+              <p>💨 Wind: {weather.wind}</p>
+              <p>👁️ Visibility: {weather.visibility}</p>
               <p>☀️ UV Index: {weather.uvIndex}</p>
             </div>
           </section>

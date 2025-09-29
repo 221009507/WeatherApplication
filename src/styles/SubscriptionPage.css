@@ -53,16 +53,6 @@
   transform: translateY(-2px);
 }
 
-.navbar-btn.logout {
-  background-color: #ff6b6b;
-  color: white;
-}
-
-.navbar-btn.logout:hover {
-  background-color: #e60000;
-  transform: translateY(-2px);
-}
-
 /* Return Button Top-Right (Optional) */
 .return-btn {
   position: absolute;
@@ -83,7 +73,7 @@
   color: white;
 }
 
-/* Keep your existing Subscription styling */
+/* Subscription Header */
 .subscription-header {
   text-align: center;
   margin-bottom: 2rem;
@@ -106,6 +96,7 @@
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
+/* Plans */
 .plans-section {
   display: flex;
   flex-wrap: wrap;
@@ -179,6 +170,7 @@
   color: #555;
 }
 
+/* Subscribe Buttons */
 .subscribe-btn {
   width: 100%;
   padding: 0.7rem 0;
@@ -191,13 +183,24 @@
   transition: background-color 0.2s;
 }
 
-.subscribe-btn:disabled {
+.subscribe-btn:hover:not(:disabled) {
+  background-color: #005fa3;
+}
+
+/* Greyed-out button for subscribed plan */
+.subscribe-btn.subscribed-btn {
   background-color: #999;
+  color: #eee;
   cursor: not-allowed;
 }
 
-.subscribe-btn:hover:not(:disabled) {
-  background-color: #005fa3;
+/* Active subscription message above cards */
+.active-subscription-msg {
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #28a745;
+  margin-bottom: 1.5rem;
 }
 
 /* Responsive */

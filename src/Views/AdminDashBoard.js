@@ -9,11 +9,14 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Fetch all users from backend
+  const [selectedUser, setSelectedUser] = useState(null); // user to edit
+  const [showModal, setShowModal] = useState(false); // modal visibility
+
+  // Fetch all users
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/api/users/all");
+        const response = await axios.get("http://localhost:8080/users/all");
         setUsers(response.data);
       } catch (error) {
         console.error("Failed to fetch users:", error);
@@ -32,7 +35,7 @@ export default function AdminDashboardPage() {
 
     try {
       const response = await axios.delete(
-        `http://localhost:8080/api/users/${userId}`,
+        `http://localhost:8080/users/delete/${userId}`,
         { timeout: 5000 }
       );
 
@@ -44,12 +47,40 @@ export default function AdminDashboardPage() {
       }
     } catch (error) {
       if (error.response) {
-        alert(`Server error: ${error.response.status} ${error.response.statusText}`);
+        alert(
+          `Server error: ${error.response.status} ${error.response.statusText}`
+        );
       } else if (error.request) {
         alert("Network error: Cannot reach backend.");
       } else {
         alert(`Error: ${error.message}`);
       }
+    }
+  };
+
+  // Open modal to edit user
+  const handleEdit = (user) => {
+    setSelectedUser(user);
+    setShowModal(true);
+  };
+
+  // Handle changes in modal inputs
+  const handleChange = (e) => {
+    setSelectedUser({ ...selectedUser, [e.target.name]: e.target.value });
+  };
+
+  // Save changes to backend
+  const handleSave = async () => {
+    try {
+      await axios.put("http://localhost:8080/users/update", selectedUser);
+      alert("User updated successfully!");
+      setShowModal(false);
+      // Refresh user list
+      const response = await axios.get("http://localhost:8080/users/all");
+      setUsers(response.data);
+    } catch (error) {
+      console.error("Failed to update user:", error);
+      alert("Failed to update user. Try again.");
     }
   };
 
@@ -64,7 +95,10 @@ export default function AdminDashboardPage() {
         <Link to="/venues">Venue</Link>
       </li>
       <li>
-        <Link to="/admin/alerts">Alerts</Link> {/* NEW LINK */}
+        <Link to="/admin/alerts">Alerts</Link>
+      </li>
+      <li>
+        <Link to="/admin/locations">Locations</Link>  {/* New admin link */}
       </li>
     </ul>
     <button
@@ -102,6 +136,7 @@ export default function AdminDashboardPage() {
                 <th>Email</th>
                 <th>Gender</th>
                 <th>Phone Number</th>
+                <th>Role</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -113,13 +148,14 @@ export default function AdminDashboardPage() {
                 >
                   <td>{user.firstName}</td>
                   <td>{user.lastName}</td>
-                  <td>{user.credentials?.email || user.email}</td>
+                  <td>{user.email}</td>
                   <td>{user.gender}</td>
                   <td>{user.phoneNumber}</td>
+                  <td>{user.role}</td>
                   <td>
                     <button
                       className="edit-btn"
-                      onClick={() => navigate(`/edit-user/${user.userId}`)}
+                      onClick={() => handleEdit(user)}
                     >
                       Edit
                     </button>
@@ -136,6 +172,89 @@ export default function AdminDashboardPage() {
           </table>
         )}
       </section>
+
+      {/* Edit User Modal */}
+      {showModal && selectedUser && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h2>Edit User</h2>
+            <form className="modal-form" onSubmit={(e) => e.preventDefault()}>
+              <label>
+                First Name:
+                <input
+                  type="text"
+                  name="firstName"
+                  value={selectedUser.firstName}
+                  onChange={handleChange}
+                />
+              </label>
+              <label>
+                Last Name:
+                <input
+                  type="text"
+                  name="lastName"
+                  value={selectedUser.lastName}
+                  onChange={handleChange}
+                />
+              </label>
+              <label>
+                Email:
+                <input
+                  type="email"
+                  name="email"
+                  value={selectedUser.email}
+                  onChange={handleChange}
+                />
+              </label>
+              <label>
+                Phone Number:
+                <input
+                  type="text"
+                  name="phoneNumber"
+                  value={selectedUser.phoneNumber}
+                  onChange={handleChange}
+                />
+              </label>
+              <label>
+                Gender:
+                <select
+                  name="gender"
+                  value={selectedUser.gender}
+                  onChange={handleChange}
+                >
+                  <option value="">--Select--</option>
+                  <option value="MALE">Male</option>
+                  <option value="FEMALE">Female</option>
+                </select>
+              </label>
+              <label>
+                Role:
+                <select
+                  name="role"
+                  value={selectedUser.role}
+                  onChange={handleChange}
+                >
+                  <option value="CUSTOMER">Customer</option>
+                  <option value="ADMIN">Admin</option>
+                </select>
+              </label>
+
+              <div className="modal-actions">
+                <button type="button" className="save-btn" onClick={handleSave}>
+                  Save
+                </button>
+                <button
+                  type="button"
+                  className="cancel-btn"
+                  onClick={() => setShowModal(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

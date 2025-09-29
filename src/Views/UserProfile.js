@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getUserById, updateUser, deleteUser } from "../services/api";
+import { getUserById, updateUser } from "../services/api";
 import avatarImg from "../images/user.png";
 import "../styles/ProfilePage.css";
 
@@ -69,25 +69,11 @@ export default function UserProfile() {
     setIsEditing(false);
   };
 
-  const handleDeleteAccount = async () => {
-    if (!window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) return;
-    try {
-      await deleteUser(formData.userId);
-      alert("Account deleted successfully.");
-      localStorage.removeItem("userProfile");
-      navigate("/login");
-    } catch (err) {
-      console.error("Delete error:", err);
-      alert("Failed to delete account.");
-    }
-  };
-
   if (loading) return <p>Loading profile...</p>;
   if (error && !profile) return <p style={{ color: "orange" }}>{error}</p>;
 
   return (
     <div className="profile-page">
-      {/* Header with back button */}
       <div className="profile-header">
         <h1>User Profile</h1>
         <button className="primary back-btn" onClick={() => navigate("/dashboard")}>
@@ -107,15 +93,10 @@ export default function UserProfile() {
 
         <div className="profile-details-section">
           {!isEditing ? (
-            <>
-              <div className="profile-details">
-                <ProfileItem label="Gender" value={formData.gender || "-"} />
-                <ProfileItem label="Phone" value={formData.phoneNumber || "-"} />
-              </div>
-              <div className="profile-buttons">
-                <button className="danger" onClick={handleDeleteAccount}>Delete Account</button>
-              </div>
-            </>
+            <div className="profile-details">
+              <ProfileItem label="Gender" value={formData.gender || "-"} />
+              <ProfileItem label="Phone" value={formData.phoneNumber || "-"} />
+            </div>
           ) : (
             <form className="profile-form" onSubmit={handleSave}>
               <FormItem label="First Name" name="firstName" value={formData.firstName} onChange={handleChange} />

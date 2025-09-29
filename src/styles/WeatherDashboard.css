@@ -1,12 +1,12 @@
-/* Layout */
+/* ---------------- Layout ---------------- */
 .dashboard-container {
   display: flex;
   min-height: 100vh;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background: #f8f9fc;
+  background: #f0f4f8;
 }
 
-/* Sidebar */
+/* ---------------- Sidebar ---------------- */
 .sidebar {
   width: 250px;
   background: #111827;
@@ -19,6 +19,7 @@
 .sidebar-logo {
   font-size: 1.5rem;
   font-weight: bold;
+  margin-bottom: 0.2rem;
 }
 
 .sidebar-subtitle {
@@ -39,6 +40,10 @@
   cursor: pointer;
   border-radius: 8px;
   transition: 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
 }
 
 .sidebar-links li:hover,
@@ -65,13 +70,13 @@
   background: #dc2626;
 }
 
-/* Main Content */
+/* ---------------- Main Content ---------------- */
 .main-content {
   flex: 1;
   padding: 2rem;
 }
 
-/* Search Section */
+/* ---------------- Search Section ---------------- */
 .search-section {
   margin-bottom: 2rem;
 }
@@ -87,7 +92,7 @@
   margin-bottom: 1rem;
 }
 
-/* Search Bar */
+/* ---------------- Search Bar ---------------- */
 .search-bar {
   display: flex;
   align-items: center;
@@ -131,7 +136,7 @@
   transform: scale(1.05);
 }
 
-/* Recent Searches */
+/* ---------------- Recent Searches ---------------- */
 .recent-searches {
   margin-bottom: 1.5rem;
 }
@@ -164,51 +169,148 @@
   transform: scale(1.05);
 }
 
-/* Weather Card */
+/* ---------------- Weather Card ---------------- */
 .weather-card {
-  background: white;
+  background: #ffffff;
   padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.3s, box-shadow 0.3s;
+  flex-wrap: wrap;
 }
 
 .weather-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2);
 }
 
+/* Weather Header (Icon + City) */
+.weather-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.weather-icon {
+  font-size: 4rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* Weather Info */
 .weather-info {
   flex: 1;
 }
 
 .weather-info h2 {
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   margin-bottom: 0.5rem;
 }
 
 .temp {
-  font-size: 2.5rem;
+  font-size: 2.8rem;
   font-weight: bold;
+  color: #2563eb;
+  margin-bottom: 0.2rem;
 }
 
 .condition {
   font-size: 1.2rem;
   color: #374151;
+  margin-bottom: 0.3rem;
 }
 
+.feels-like {
+  font-size: 1rem;
+  color: #6b7280;
+}
+
+/* Weather Stats */
 .weather-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+  background: #f9fafb;
+  padding: 1.2rem;
+  border-radius: 14px;
   text-align: right;
-  color: #374151;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  min-width: 200px;
 }
 
 .weather-stats p {
-  margin: 2px 0;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  color: #374151;
+  margin: 0;
+}
+
+/* ---------------- Weather Colors Based on Condition ---------------- */
+.weather-card.sunny {
+  background: linear-gradient(135deg, #fef08a, #facc15);
+}
+
+.weather-card.cloudy {
+  background: linear-gradient(135deg, #d1d5db, #9ca3af);
+}
+
+.weather-card.rainy {
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  color: #fff;
+}
+
+.weather-card.stormy {
+  background: linear-gradient(135deg, #64748b, #1e293b);
+  color: #fff;
+}
+
+.weather-card.snowy {
+  background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+}
+
+.weather-card.foggy {
+  background: linear-gradient(135deg, #a5f3fc, #38bdf8);
+}
+
+.weather-card.sunny .weather-icon {
+  text-shadow: 0 0 12px #fde047;
+}
+
+/* ---------------- Responsive ---------------- */
+@media (max-width: 768px) {
+  .dashboard-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 1rem;
+  }
+
+  .main-content {
+    padding: 1rem;
+  }
+
+  .weather-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .weather-stats {
+    text-align: left;
+    align-items: flex-start;
+    margin-top: 1rem;
+  }
+
+  .recent-searches ul {
+    gap: 6px;
+  }
 }

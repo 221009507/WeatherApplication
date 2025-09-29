@@ -3,7 +3,6 @@ import HomePage from "./Views/HomePage";
 import LoginPage from "./Views/LoginPage";
 import RegisterPage from "./Views/RegisterPage";
 import WeatherDashboard from "./Views/WeatherDashboard";
-import LocationsPage from "./Views/LocationsPage";
 import AlertsPage from "./Views/AlertsPage";
 import AdminAlertsPage from "./Views/AdminAlertsPage"; // admin alerts page
 import UserProfile from "./Views/UserProfile";
@@ -17,21 +16,30 @@ import ForecastPage from "./Views/ForecastPage";
 
 import AdminDashboardPage from "./Views/AdminDashBoard"; // admin dashboard
 
+// Updated Location pages
+import AdminLocationPage from "./Views/AdminLocationPage"; // admin can add/delete
+import UserLocationsPage from "./Views/UserLocationsPage";   // user can only view/search
+
 function App() {
   return (
     <Router>
       <Routes>
+        {/* Main Pages */}
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/dashboard" element={<WeatherDashboard />} />
         <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
-        <Route path="/locations" element={<LocationsPage />} />
+
+        {/* Locations */}
+        <Route path="/locations" element={<UserLocationsPage />} />       {/* user-only */}
+        <Route path="/admin/locations" element={<AdminLocationPage />} /> {/* admin-only */}
 
         {/* Alerts routes */}
-        <Route path="/alerts" element={<AlertsPage />} />           {/* user view */}
+        <Route path="/alerts" element={<AlertsPage />} />            {/* user view */}
         <Route path="/admin/alerts" element={<AdminAlertsPage />} /> {/* admin create */}
 
+        {/* Profile & other pages */}
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/events" element={<EventPage />} />
         <Route path="/venues" element={<VenuePage />} />

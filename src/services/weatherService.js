@@ -1,24 +1,30 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/weather"; // make sure this matches your backend
+const API_URL = "http://localhost:8080/weather"; // backend URL
 
 const weatherService = {
-  // Get current weather by city
-  getByCityName: async (cityName) => {
+  // Get live current weather from backend
+  getLiveWeather: async (cityName) => {
+    if (!cityName) return null;
     try {
-      const response = await axios.get(`${API_URL}/current?city=${cityName}`);
-      return response.data; // assuming your backend returns a Weather object or array
+      const response = await axios.get(`${API_URL}/current`, {
+        params: { city: cityName },
+      });
+      return response.data; // backend returns Weather object
     } catch (error) {
-      console.error("Error fetching weather data:", error);
+      console.error("Error fetching live weather:", error);
       return null;
     }
   },
 
   // Optional: get 10-day forecast
   getForecastByCity: async (cityName) => {
+    if (!cityName) return [];
     try {
-      const response = await axios.get(`${API_URL}/forecast?city=${cityName}`);
-      return response.data; // array of DailyForecast
+      const response = await axios.get(`${API_URL}/forecast`, {
+        params: { city: cityName },
+      });
+      return response.data;
     } catch (error) {
       console.error("Error fetching forecast:", error);
       return [];
@@ -27,9 +33,12 @@ const weatherService = {
 
   // Optional: get sunrise/sunset times
   getAstronomyByCity: async (cityName) => {
+    if (!cityName) return null;
     try {
-      const response = await axios.get(`${API_URL}/astronomy?city=${cityName}`);
-      return response.data; // Astronomy object
+      const response = await axios.get(`${API_URL}/astronomy`, {
+        params: { city: cityName },
+      });
+      return response.data;
     } catch (error) {
       console.error("Error fetching astronomy data:", error);
       return null;
