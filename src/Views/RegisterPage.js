@@ -26,7 +26,7 @@ export default function RegisterPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // password validation
+    // Password validation
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match!");
       return;
@@ -38,27 +38,14 @@ export default function RegisterPage() {
       const profile = response.data;
 
       console.log("User registered:", profile);
-      alert("Registered successfully!");
+      alert("Registered successfully! Please log in.");
 
-      // Save only needed fields in localStorage for account fetch
-      localStorage.setItem(
-        "userProfile",
-        JSON.stringify({
-          userId: profile.userId,
-          firstName: profile.firstName,
-          lastName: profile.lastName,
-          email: profile.email,
-          gender: profile.gender,
-          phoneNumber: profile.phoneNumber
-        })
-      );
-
-      navigate("/dashboard", { state: { firstName: profile.firstName } });
-    } catch (error) {
-      console.error("Registration failed:", error.response || error);
-      alert(
-        error.response?.data ||
-          "Registration failed! Check console for details."
+      // Redirect to login page after registration
+      navigate("/login");
+    } catch (err) {
+      console.error("Registration failed:", err.response || err);
+      setError(
+        err.response?.data || "Registration failed! Check console for details."
       );
     }
   };

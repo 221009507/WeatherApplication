@@ -19,31 +19,26 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    const payload = {
-      email: formData.email.trim(),
-      password: formData.password.trim(),
-    };
+
     try {
-      const response = await loginUser(payload);
-      const profile = response.data;
-      console.log("Login successful:", profile);
-      // Save only needed fields in localStorage for account fetch
-      localStorage.setItem("userProfile", JSON.stringify({
-        userId: profile.userId,
-        firstName: profile.firstName,
-        lastName: profile.lastName,
-        email: profile.email,
-        gender: profile.gender,
-        phoneNumber: profile.phoneNumber,
-        role: profile.role
-      }));
-      if (!profile.userId) {
-        console.warn("Warning: userId missing from login response.", profile);
-      }
-      if (profile.role === "ADMIN") {
-        navigate("/admin-dashboard", { state: { firstName: profile.firstName } });
+      const response = await loginUser({
+        email: formData.email.trim(),
+        password: formData.password.trim(),
+      });
+
+      const { token, user } = response.data; // expecting backend returns { token, user }
+
+      // Save JWT token in localStorage
+      localStorage.setItem("jwtToken", token);
+
+      // Save user info for display and identification
+      localStorage.setItem("userProfile", JSON.stringify(user));
+
+      // Navigate to dashboard based on role
+      if (user.role === "ADMIN") {
+        navigate("/admin-dashboard", { state: { firstName: user.firstName } });
       } else {
-        navigate("/dashboard", { state: { firstName: profile.firstName } });
+        navigate("/dashboard", { state: { firstName: user.firstName } });
       }
     } catch (err) {
       console.error("Login failed:", err.response || err);

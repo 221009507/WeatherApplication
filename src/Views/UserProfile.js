@@ -10,67 +10,96 @@ export default function UserProfile() {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    email: "",
     phoneNumber: "",
     gender: "",
-    userId: ""
   });
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Load current user profile using JWT token
   useEffect(() => {
     const storedProfile = localStorage.getItem("userProfile");
-    let userId = "";
-    if (storedProfile) {
-      try {
-        userId = JSON.parse(storedProfile).userId;
-      } catch {}
-    }
-    if (!userId) {
+    if (!storedProfile) {
+      setError("No user profile found. Please log in.");
       setLoading(false);
-      setError("No user ID found. Please log in.");
       return;
     }
+
+    const { userId } = JSON.parse(storedProfile);
+    if (!userId) {
+      setError("User ID not found. Please log in.");
+      setLoading(false);
+      return;
+    }
+
+    // Fetch user profile from protected endpoint
     getUserById(userId)
-      .then(res => {
+      .then((res) => {
         setProfile(res.data);
-        setFormData(res.data);
+        setFormData({
+          firstName: res.data.firstName || "",
+          lastName: res.data.lastName || "",
+          phoneNumber: res.data.phoneNumber || "",
+          gender: res.data.gender || "",
+        });
       })
-      .catch(err => {
-        console.error("Profile fetch error:", err);
-        setError("No profile found. Please register first.");
+      .catch((err) => {
+        console.error("Error fetching profile:", err.response || err);
+        setError("Failed to fetch profile.");
       })
       .finally(() => setLoading(false));
   }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!formData.email) return alert("Email is required!");
+    if (!profile?.userId) return alert("User ID missing. Cannot update profile.");
+
     try {
-      const response = await updateUser(formData);
+      const response = await updateUser(profile.userId, {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        phoneNumber: formData.phoneNumber,
+        gender: formData.gender,
+      });
+
+      // Update state & localStorage
       setProfile(response.data);
-      setFormData(response.data);
+      setFormData({
+        firstName: response.data.firstName || "",
+        lastName: response.data.lastName || "",
+        phoneNumber: response.data.phoneNumber || "",
+        gender: response.data.gender || "",
+      });
+      localStorage.setItem("userProfile", JSON.stringify(response.data));
+
       setIsEditing(false);
       alert("Profile updated ✅");
     } catch (err) {
-      console.error("Save error:", err);
-      alert("Error saving profile ❌");
+      console.error("Update error:", err.response || err);
+      alert("Error updating profile ❌");
     }
   };
 
   const handleCancel = () => {
-    setFormData(profile || { firstName: "", lastName: "", email: "", phoneNumber: "", gender: "", userId: "" });
+    if (profile) {
+      setFormData({
+        firstName: profile.firstName || "",
+        lastName: profile.lastName || "",
+        phoneNumber: profile.phoneNumber || "",
+        gender: profile.gender || "",
+      });
+    }
     setIsEditing(false);
   };
 
   if (loading) return <p>Loading profile...</p>;
-  if (error && !profile) return <p style={{ color: "orange" }}>{error}</p>;
+  if (error) return <p style={{ color: "orange" }}>{error}</p>;
 
   return (
     <div className="profile-page">
@@ -84,8 +113,8 @@ export default function UserProfile() {
       <div className="profile-container">
         <div className="profile-avatar-section">
           <img src={avatarImg} alt="Profile Avatar" className="profile-avatar" />
-          <p className="user-name">{formData.firstName} {formData.lastName}</p>
-          <p className="user-email">{formData.email}</p>
+          <p className="user-name">{profile.firstName} {profile.lastName}</p>
+          <p className="user-email">{profile.email}</p>
           {!isEditing && (
             <button className="primary" onClick={() => setIsEditing(true)}>Edit Profile</button>
           )}
@@ -94,14 +123,13 @@ export default function UserProfile() {
         <div className="profile-details-section">
           {!isEditing ? (
             <div className="profile-details">
-              <ProfileItem label="Gender" value={formData.gender || "-"} />
-              <ProfileItem label="Phone" value={formData.phoneNumber || "-"} />
+              <ProfileItem label="Gender" value={profile.gender || "-"} />
+              <ProfileItem label="Phone" value={profile.phoneNumber || "-"} />
             </div>
           ) : (
             <form className="profile-form" onSubmit={handleSave}>
               <FormItem label="First Name" name="firstName" value={formData.firstName} onChange={handleChange} />
               <FormItem label="Last Name" name="lastName" value={formData.lastName} onChange={handleChange} />
-              <FormItem label="Email" name="email" value={formData.email} onChange={handleChange} type="email" disabled />
               <FormItem label="Phone" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} />
               <FormItem label="Gender" name="gender" value={formData.gender} onChange={handleChange} />
               <div className="profile-buttons">

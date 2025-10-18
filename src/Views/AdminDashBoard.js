@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import { getAllUsers, updateUser, deactivateUser, reactivateUser } from "../services/api"; // added reactivate
 import "../styles/AdminDashBoard.css";
 
 export default function AdminDashboardPage() {
@@ -13,48 +13,48 @@ export default function AdminDashboardPage() {
   const [showModal, setShowModal] = useState(false); // modal visibility
 
   // Fetch all users
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await axios.get("http://localhost:8080/users/all");
-        setUsers(response.data);
-      } catch (error) {
-        console.error("Failed to fetch users:", error);
-        setError("Failed to fetch users. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const response = await getAllUsers();
+      setUsers(response.data);
+    } catch (err) {
+      console.error("Failed to fetch users:", err.response || err);
+      setError("Failed to fetch users. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchUsers();
   }, []);
 
-  // Handle delete user
-  const handleDelete = async (userId) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
+  // Handle deactivate user
+  const handleDeactivate = async (userId) => {
+    if (!window.confirm("Are you sure you want to deactivate this user?")) return;
 
     try {
-      const response = await axios.delete(
-        `http://localhost:8080/users/delete/${userId}`,
-        { timeout: 5000 }
-      );
+      await deactivateUser(userId);
+      fetchUsers();
+      alert("User deactivated successfully!");
+    } catch (err) {
+      console.error("Deactivate error:", err.response || err);
+      alert("Failed to deactivate user. Check console for details.");
+    }
+  };
 
-      if (response.status === 204) {
-        setUsers(users.filter((user) => user.userId !== userId));
-        alert("User deleted successfully!");
-      } else {
-        alert(`Unexpected response: ${response.status}`);
-      }
-    } catch (error) {
-      if (error.response) {
-        alert(
-          `Server error: ${error.response.status} ${error.response.statusText}`
-        );
-      } else if (error.request) {
-        alert("Network error: Cannot reach backend.");
-      } else {
-        alert(`Error: ${error.message}`);
-      }
+  // Handle reactivate user
+  const handleReactivate = async (userId) => {
+    if (!window.confirm("Are you sure you want to reactivate this user?")) return;
+
+    try {
+      await reactivateUser(userId);
+      fetchUsers();
+      alert("User reactivated successfully!");
+    } catch (err) {
+      console.error("Reactivate error:", err.response || err);
+      alert("Failed to reactivate user. Check console for details.");
     }
   };
 
@@ -71,16 +71,16 @@ export default function AdminDashboardPage() {
 
   // Save changes to backend
   const handleSave = async () => {
+    if (!selectedUser || !selectedUser.userId) return;
+
     try {
-      await axios.put("http://localhost:8080/users/update", selectedUser);
+      await updateUser(selectedUser.userId, selectedUser);
       alert("User updated successfully!");
       setShowModal(false);
-      // Refresh user list
-      const response = await axios.get("http://localhost:8080/users/all");
-      setUsers(response.data);
-    } catch (error) {
-      console.error("Failed to update user:", error);
-      alert("Failed to update user. Try again.");
+      fetchUsers(); // refresh user list
+    } catch (err) {
+      console.error("Update error:", err.response || err);
+      alert("Failed to update user. Check console for details.");
     }
   };
 
@@ -88,30 +88,31 @@ export default function AdminDashboardPage() {
     <div className="admin-dashboard-container">
       {/* Navbar */}
       <nav className="admin-navbar">
-  <h1>Admin Panel</h1>
-  <div className="navbar-right">
-    <ul className="navbar-links">
-      <li>
-        <Link to="/venues">Venue</Link>
-      </li>
-      <li>
-        <Link to="/admin/alerts">Alerts</Link>
-      </li>
-      <li>
-        <Link to="/admin/locations">Locations</Link>  {/* New admin link */}
-      </li>
-    </ul>
-    <button
-      className="logout-btn"
-      onClick={() => {
-        localStorage.removeItem("authToken");
-        navigate("/");
-      }}
-    >
-      Logout
-    </button>
-  </div>
-</nav>
+        <h1>Admin Panel</h1>
+        <div className="navbar-right">
+          <ul className="navbar-links">
+            <li>
+              <Link to="/venues">Venue</Link>
+            </li>
+            <li>
+              <Link to="/admin/alerts">Alerts</Link>
+            </li>
+            <li>
+              <Link to="/admin/locations">Locations</Link>
+            </li>
+          </ul>
+          <button
+            className="logout-btn"
+            onClick={() => {
+              localStorage.removeItem("jwtToken");
+              localStorage.removeItem("userProfile");
+              navigate("/");
+            }}
+          >
+            Logout
+          </button>
+        </div>
+      </nav>
 
       {/* Welcome Section */}
       <section className="welcome-section">
@@ -137,6 +138,7 @@ export default function AdminDashboardPage() {
                 <th>Gender</th>
                 <th>Phone Number</th>
                 <th>Role</th>
+                <th>Status</th> {/* NEW COLUMN */}
                 <th>Actions</th>
               </tr>
             </thead>
@@ -152,6 +154,7 @@ export default function AdminDashboardPage() {
                   <td>{user.gender}</td>
                   <td>{user.phoneNumber}</td>
                   <td>{user.role}</td>
+                  <td>{user.isActive ? "Active" : "Inactive"}</td> {/* STATUS */}
                   <td>
                     <button
                       className="edit-btn"
@@ -159,12 +162,21 @@ export default function AdminDashboardPage() {
                     >
                       Edit
                     </button>
-                    <button
-                      className="delete-btn"
-                      onClick={() => handleDelete(user.userId)}
-                    >
-                      Delete
-                    </button>
+                    {user.isActive ? (
+                      <button
+                        className="delete-btn"
+                        onClick={() => handleDeactivate(user.userId)}
+                      >
+                        Deactivate
+                      </button>
+                    ) : (
+                      <button
+                        className="reactivate-btn"
+                        onClick={() => handleReactivate(user.userId)}
+                      >
+                        Reactivate
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -204,6 +216,7 @@ export default function AdminDashboardPage() {
                   name="email"
                   value={selectedUser.email}
                   onChange={handleChange}
+                  disabled
                 />
               </label>
               <label>
