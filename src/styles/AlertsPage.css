@@ -1,56 +1,244 @@
 .alerts-container {
+  max-width: 600px;
+  margin: 0 auto;
   padding: 20px;
-  font-family: Arial, sans-serif;
-  max-width: 800px;
-  margin: auto;
-  text-align: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-h1 {
+.alerts-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.alerts-header h1 {
+  font-size: 2rem;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.alerts-header p {
+  color: #666;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.search-section {
+  background: #f8f9fa;
+  padding: 25px;
+  border-radius: 10px;
   margin-bottom: 20px;
 }
 
 .search-bar {
   display: flex;
-  justify-content: center;
   gap: 10px;
-  margin-bottom: 25px;
 }
 
 .search-bar input {
-  padding: 10px;
-  width: 300px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+  flex: 1;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.search-bar input:focus {
+  outline: none;
+  border-color: #007bff;
 }
 
 .search-bar button {
-  padding: 10px 15px;
-  background: #0077ff;
+  padding: 12px 20px;
+  background: #007bff;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
+  font-size: 14px;
   cursor: pointer;
+  white-space: nowrap;
 }
 
-.search-bar button:hover {
-  background: #005fcc;
+.search-bar button:hover:not(:disabled) {
+  background: #0056b3;
 }
 
-.error {
-  color: red;
-  margin-top: 10px;
+.search-bar button:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Status Messages */
+.status-message {
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.status-message.loading {
+  background: #e3f2fd;
+  color: #1565c0;
+  border: 1px solid #bbdefb;
+}
+
+.status-message.info {
+  background: #e8f5e8;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+.status-message.error {
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+}
+
+/* Alerts Section */
+.alerts-section {
+  margin-bottom: 20px;
 }
 
 .alerts-list {
-  display: grid;
-  gap: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .alert-card {
-  padding: 15px;
-  border: 1px solid #ddd;
+  background: white;
+  border: 1px solid #e9ecef;
   border-radius: 8px;
-  background: #f9f9f9;
-  text-align: left;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.alert-card.high {
+  border-left: 4px solid #dc3545;
+}
+
+.alert-card.moderate {
+  border-left: 4px solid #fd7e14;
+}
+
+.alert-card.low {
+  border-left: 4px solid #28a745;
+}
+
+.alert-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.alert-title {
+  font-weight: 600;
+  color: #1a1a1a;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.alert-icon {
+  font-size: 16px;
+}
+
+.alert-severity {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.alert-card.high .alert-severity {
+  background: #dc3545;
+  color: white;
+}
+
+.alert-card.moderate .alert-severity {
+  background: #fd7e14;
+  color: white;
+}
+
+.alert-card.low .alert-severity {
+  background: #28a745;
+  color: white;
+}
+
+.alert-details {
+  font-size: 13px;
+  color: #666;
+}
+
+.alert-location {
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #495057;
+}
+
+.alert-description {
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+
+.alert-source {
+  font-size: 12px;
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* No Alerts */
+.no-alerts {
+  text-align: center;
+  padding: 30px 20px;
+}
+
+.all-clear {
+  background: #f8f9fa;
+  padding: 30px;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.clear-icon {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+}
+
+.all-clear h3 {
+  color: #28a745;
+  margin-bottom: 8px;
+  font-size: 1.3rem;
+}
+
+.all-clear p {
+  color: #666;
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .alerts-container {
+    padding: 15px;
+  }
+  
+  .search-bar {
+    flex-direction: column;
+  }
+  
+  .alert-main {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  
+  .alert-severity {
+    align-self: flex-start;
+  }
 }
