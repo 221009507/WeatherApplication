@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/api/forecasts"; // plural to match backend
+const API_URL = "http://localhost:8080/api/forecast"; // plural to match backend
 
 const forecastService = {
   // ---------------- DB Forecasts ----------------

@@ -3,6 +3,8 @@ import axios from 'axios';
 import '../styles/ForecastPage.css';
 
 const Forecast = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const [city, setCity] = useState('');
   const [countryCode, setCountryCode] = useState('');
   const [forecastData, setForecastData] = useState(null);
@@ -10,6 +12,8 @@ const Forecast = () => {
   const [error, setError] = useState('');
   const [recentSearches, setRecentSearches] = useState([]);
   const [selectedDay, setSelectedDay] = useState('all');
+
+  
 
   useEffect(() => {
     const savedSearches = localStorage.getItem('recentWeatherSearches');
@@ -21,6 +25,12 @@ const Forecast = () => {
   useEffect(() => {
     localStorage.setItem('recentWeatherSearches', JSON.stringify(recentSearches));
   }, [recentSearches]);
+
+  // Helper function to properly encode URLs
+ // Remove the + replacement and use standard encoding
+const encodeURL = (str) => {
+  return encodeURIComponent(str);
+};
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -35,18 +45,21 @@ const Forecast = () => {
     setSelectedDay('all');
    
     try {
-      console.log('Searching for 5-day forecast:', city, countryCode);
+      const encodedCity = encodeURL(city);
+      const encodedCountry = countryCode || 'ZA';
+      
+      console.log('Searching for 5-day forecast:', city, '->', encodedCity, encodedCountry);
      
       // First, try to get existing data from our database
       try {
         const response = await axios.get(
-          `http://localhost:8080/api/forecast/city/${encodeURIComponent(city)}/country/${countryCode || 'ZA'}`
+          `http://localhost:8080/api/forecast/city/${encodedCity}/country/${encodedCountry}`
         );
        
         if (response.data && response.data.length > 0) {
           console.log('Found existing data in database:', response.data.length, 'entries');
           setForecastData(response.data);
-          addToRecentSearches(city, countryCode);
+          addToRecentSearches(city, encodedCountry);
           return;
         }
       } catch (getError) {
@@ -56,7 +69,7 @@ const Forecast = () => {
       // If no existing data, fetch from OpenWeatherMap API
       console.log('Fetching 5-day forecast from OpenWeatherMap API...');
       const createResponse = await axios.post(
-        `http://localhost:8080/api/forecast/fetch/${encodeURIComponent(city)}/${countryCode || 'ZA'}`
+        `http://localhost:8080/api/forecast/fetch/${encodedCity}/${encodedCountry}`
       );
      
       if (createResponse.data && createResponse.data.length > 0) {
@@ -64,12 +77,12 @@ const Forecast = () => {
        
         // Now get the saved data from our database
         const response = await axios.get(
-          `http://localhost:8080/api/forecast/city/${encodeURIComponent(city)}/country/${countryCode || 'ZA'}`
+          `http://localhost:8080/api/forecast/city/${encodedCity}/country/${encodedCountry}`
         );
        
         if (response.data && response.data.length > 0) {
           setForecastData(response.data);
-          addToRecentSearches(city, countryCode);
+          addToRecentSearches(city, encodedCountry);
         } else {
           setError('No forecast data found for this location.');
         }
@@ -78,7 +91,20 @@ const Forecast = () => {
       }
     } catch (err) {
       console.error('Error fetching forecast:', err);
-      // ... keep your existing error handling
+      if (err.response) {
+        // Server responded with error status
+        if (err.response.status === 404) {
+          setError(`City "${city}" not found. Please check the spelling.`);
+        } else if (err.response.status === 500) {
+          setError(`Server error while fetching data for "${city}". Please try again.`);
+        } else {
+          setError(`Error: ${err.response.status} - ${err.response.data || 'Failed to fetch forecast'}`);
+        }
+      } else if (err.request) {
+        setError('Network error. Please check if the server is running.');
+      } else {
+        setError('An unexpected error occurred.');
+      }
     } finally {
       setLoading(false);
     }
@@ -145,6 +171,16 @@ const Forecast = () => {
     }
   };
 
+  const handleQuickSearch = (testCity, testCountry) => {
+    setCity(testCity);
+    setCountryCode(testCountry);
+    // Trigger search after a short delay to allow state update
+    setTimeout(() => {
+      const fakeEvent = { preventDefault: () => {} };
+      handleSearch(fakeEvent);
+    }, 100);
+  };
+
   const formatDate = (dateString) => {
     try {
       const options = {
@@ -195,7 +231,9 @@ const Forecast = () => {
     { city: 'Tokyo', country: 'JP' },
     { city: 'Cape Town', country: 'ZA' },
     { city: 'Johannesburg', country: 'ZA' },
-    { city: 'Durban', country: 'ZA' }
+    { city: 'Durban', country: 'ZA' },
+    { city: 'Port Elizabeth', country: 'ZA' },
+    { city: 'East London', country: 'ZA' }
   ];
 
   const filteredForecasts = getFilteredForecasts();
@@ -206,12 +244,29 @@ const Forecast = () => {
     <div className="forecast-container">
       <h1>Weather Forecast</h1>
      
-      {/* Search form remains the same */}
+      {/* Quick Search Buttons */}
+      <div className="quick-search">
+        <h3>Quick Search:</h3>
+        <div className="quick-search-buttons">
+          {testCities.map((testCity, index) => (
+            <button
+              key={index}
+              className="quick-search-btn"
+              onClick={() => handleQuickSearch(testCity.city, testCity.country)}
+              disabled={loading}
+            >
+              {testCity.city}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Search form */}
       <form onSubmit={handleSearch} className="search-form">
         <div className="input-group">
           <input
             type="text"
-            placeholder="Enter city name"
+            placeholder="Enter city name (e.g., Cape Town, New York)"
             value={city}
             onChange={(e) => setCity(e.target.value)}
             required
@@ -219,17 +274,44 @@ const Forecast = () => {
           />
           <input
             type="text"
-            placeholder="Country code"
+            placeholder="Country code (ZA)"
             value={countryCode}
             onChange={(e) => setCountryCode(e.target.value.toUpperCase())}
-            style={{ width: '100px' }}
+            style={{ width: '120px' }}
             disabled={loading}
+            maxLength={2}
           />
           <button type="submit" disabled={loading}>
             {loading ? '⏳ Loading...' : '🔍 Get 5-Day Forecast'}
           </button>
         </div>
       </form>
+
+      {/* Error Display */}
+      {error && (
+        <div className="error-message">
+          <p>❌ {error}</p>
+        </div>
+      )}
+
+      {/* Recent Searches */}
+      {recentSearches.length > 0 && (
+        <div className="recent-searches">
+          <h3>Recent Searches:</h3>
+          <div className="recent-buttons">
+            {recentSearches.map((search, index) => (
+              <button
+                key={index}
+                className="recent-btn"
+                onClick={() => handleRecentSearch(search)}
+                disabled={loading}
+              >
+                {search}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Day selection filter */}
       {forecastData && forecastData.length > 0 && (
@@ -333,7 +415,7 @@ const Forecast = () => {
       {loading && (
         <div className="loading-overlay">
           <div className="loading-spinner"></div>
-          <p>Fetching weather data...</p>
+          <p>Fetching weather data for {city}...</p>
         </div>
       )}
     </div>
